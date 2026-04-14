@@ -57,6 +57,8 @@ function formatCurrency(amount) {
   return "₱" + value.toLocaleString("en-PH");
 }
 
+const EVIDENCE_PREVIEW_PLACEHOLDER = "assets/evidence-placeholder.png";
+
 function getBestTime(difficulty) {
   const board = state.leaderboards[difficulty] || [];
   if (!board.length) return "—";
@@ -261,6 +263,34 @@ function renderInvestigation() {
       </div>
 
       <div id="pinPanel" class="pin-overlay hidden" onclick="handlePinOverlayClick(event)">
+        <div class="evidence-preview-wrap">
+          <div class="evidence-preview-card">
+            <div class="evidence-preview-header">
+              <span class="evidence-preview-badge">EVIDENCE PREVIEW</span>
+              <span class="evidence-preview-platform" id="evidencePreviewPlatform">Facebook</span>
+            </div>
+            <div class="evidence-preview-frame">
+              <img
+                id="evidencePreviewBackdrop"
+                class="evidence-preview-backdrop"
+                src="${EVIDENCE_PREVIEW_PLACEHOLDER}"
+                alt=""
+                aria-hidden="true"
+              >
+              <img
+                id="evidencePreviewImage"
+                class="evidence-preview-image"
+                src="${EVIDENCE_PREVIEW_PLACEHOLDER}"
+                alt="Evidence screenshot preview"
+              >
+            </div>
+            <div class="evidence-preview-caption">
+              <div class="evidence-preview-title" id="evidencePreviewTitle">Feed post screenshot placeholder</div>
+              <div class="evidence-preview-meta" id="evidencePreviewMeta">You can replace this with the real screenshot later.</div>
+              <div class="evidence-preview-excerpt" id="evidencePreviewExcerpt">Tap Save Evidence once classification is complete.</div>
+            </div>
+          </div>
+        </div>
         <div class="pin-panel">
           <div class="pin-panel-header">
             <h3>📌 CLASSIFY EVIDENCE</h3>
@@ -667,13 +697,25 @@ function openPinPanel(postId) {
   const pinPanel = document.getElementById("pinPanel");
   const quote = document.getElementById("pinQuote");
   const note = document.getElementById("pinNote");
-  if (!pinPanel || !quote || !note) return;
+  const previewBackdrop = document.getElementById("evidencePreviewBackdrop");
+  const previewImage = document.getElementById("evidencePreviewImage");
+  const previewPlatform = document.getElementById("evidencePreviewPlatform");
+  const previewTitle = document.getElementById("evidencePreviewTitle");
+  const previewMeta = document.getElementById("evidencePreviewMeta");
+  const previewExcerpt = document.getElementById("evidencePreviewExcerpt");
+  if (!pinPanel || !quote || !note || !previewBackdrop || !previewImage || !previewPlatform || !previewTitle || !previewMeta || !previewExcerpt) return;
 
   state.activePin = postId;
   state.pinDraft = { reason: null, field: null, note: "", vouchers: {} };
 
   quote.textContent = '"' + post.content + '"';
   note.value = "";
+  previewBackdrop.src = EVIDENCE_PREVIEW_PLACEHOLDER;
+  previewImage.src = EVIDENCE_PREVIEW_PLACEHOLDER;
+  previewPlatform.textContent = String(post.platform || state.activePlatform || "feed");
+  previewTitle.textContent = (post.author || "Applicant") + " post screenshot";
+  previewMeta.textContent = post.meta || "Screenshot placeholder";
+  previewExcerpt.textContent = post.content || "Replace this placeholder with your actual evidence image later.";
 
   document.querySelectorAll(".radio-option").forEach(function clearReason(option) {
     option.classList.remove("selected");
