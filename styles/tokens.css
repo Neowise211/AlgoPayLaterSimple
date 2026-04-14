@@ -1,117 +1,251 @@
+/* ═══════════════════════════════════════════════════
+   tokens.css  —  Algo Pay · Loan Investigator
+   Design system tokens: the single source of truth.
+   Every visual value in main.css references a token
+   defined here.
+   ═══════════════════════════════════════════════════ */
+
 :root {
+
+  /* ── Dark Desk Tones ─────────────────────────────
+     Warm-blacks and espresso. Used for investigation
+     shell, topbar, and dark-context surfaces.
+     Never blue-black — always tinted warm. */
+  --brand-color-desk: #1A1410;
+  --brand-color-desk-surface: #2A2218;
+  --brand-color-desk-raised: #3A3028;
+  --brand-color-desk-border: #4A3E30;
+  --brand-color-desk-ink: #E8DCC8;
+  --brand-color-desk-ink-muted: #A89878;
+
+  /* ── Warm Neutrals (Paper / Document Surfaces) ──
+     Cream, manila, aged-paper. Used for document
+     cards and light-screen backgrounds. */
   --brand-color-bg: #F5F0E6;
   --brand-color-surface: #FFF8E7;
-  --brand-color-ink: #2C1810;
-  --brand-color-ink-muted: #8B6914;
-  --brand-color-gold: #F0C050;
-  --brand-color-gold-dark: #D4A630;
-  --brand-color-crimson: #A52424;
-  --brand-color-crimson-dark: #7A1818;
-  --brand-color-paper: #EDDFB8;
-  --brand-color-paper-dark: #C5B078;
-  --brand-color-success: #3FA856;
-  --brand-color-warning: #E89040;
-  --brand-color-topbar-bg: #EAE4D5;
-  --brand-color-border-muted: #D4CDB8;
   --brand-color-surface-strong: #E0D9C7;
   --brand-color-surface-soft: #F5E5B8;
-  --brand-color-success-bg: #E8F5E8;
-  --brand-color-success-ink: #2A7D3E;
+  --brand-color-ink: #2C1810;
+  --brand-color-ink-muted: #8B6914;
+  --brand-color-ink-content: #1C1E21;
+  --brand-color-ink-meta: #65676B;
+  --brand-color-paper: #EDDFB8;
+  --brand-color-paper-dark: #C5B078;
+  --brand-color-kraft: #C4A86A;
+
+  /* ── Hero Accent: Gold ───────────────────────────
+     The signature colour. Use with intention:
+     highlights, verdicts, active states.
+     Not decoration everywhere. */
+  --brand-color-gold: #F0C050;
+  --brand-color-gold-dark: #D4A630;
+  --brand-color-gold-light: #F5D680;
+
+  /* ── Semantic Accents ────────────────────────── */
+  --brand-color-crimson: #8B1A1A;
+  --brand-color-crimson-vivid: #C0392B;
+  --brand-color-crimson-dark: #6A1212;
+  --brand-color-success: #2D8A4E;
+  --brand-color-success-ink: #1E6B38;
+  --brand-color-success-bg: #E2F5E8;
+  --brand-color-warning: #D4781A;
+  --brand-color-warning-ink: #B05E0A;
   --brand-color-warning-bg: #FDE8D5;
-  --brand-color-warning-ink: #C66A1A;
   --brand-color-danger-bg: #F5E0E0;
-  --brand-color-quote-bg: #FBF3DA;
-  --brand-color-brown-700: #6B4E1F;
-  --brand-color-brown-800: #5A4318;
-  --brand-color-brown-900: #3A2E14;
+  --brand-color-slate: #3D5A80;
+
+  /* ── Borders ─────────────────────────────────── */
+  --brand-color-border-muted: #D4CDB8;
   --brand-color-border-light: #DDD;
   --brand-color-border-lighter: #EAEAEA;
   --brand-color-border-subtle: #F0EADB;
-  --brand-color-ink-content: #1C1E21;
-  --brand-color-ink-meta: #65676B;
+
+  /* ── Component-Specific Colors ──────────────────
+     One-off values tied to specific UI surfaces. */
   --brand-color-avatar: #C9A96E;
-  --brand-color-image-start: #B8D4E3;
-  --brand-color-image-end: #7FA8BF;
+  --brand-color-image-start: #4A5568;
+  --brand-color-image-end: #2D3748;
+  --brand-color-quote-bg: #FBF3DA;
   --brand-color-folder-border: #A89362;
   --brand-color-folder-start: #D4C08A;
   --brand-color-folder-active-end: #DCC89A;
   --brand-color-folder-body-end: #E8D9B0;
   --brand-color-folder-body-border: #B8A272;
-  --brand-color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* ── Overlays ────────────────────────────────── */
+  --brand-color-overlay: rgba(26, 20, 16, 0.72);
   --brand-color-overlay-paper: rgba(139, 105, 20, 0.04);
   --brand-color-overlay-white: rgba(255, 255, 255, 0.3);
-  --brand-color-black: #000000;
+  --brand-color-overlay-gold: rgba(240, 192, 80, 0.06);
+  --brand-color-black: #000;
+
+  /* ── Platform Brand Colors ───────────────────── */
   --brand-color-platform-fb: #1877F2;
   --brand-color-platform-li: #0077B5;
   --brand-color-platform-ig-start: #F58529;
   --brand-color-platform-ig-end: #E1306C;
 
-  --brand-space-1: 1px;
-  --brand-space-xxs: 2px;
-  --brand-space-xs: 4px;
-  --brand-space-3: 3px;
-  --brand-space-5: 5px;
+  /* ── Brown Scale (typography on paper) ────────── */
+  --brand-color-brown-700: #6B4E1F;
+  --brand-color-brown-800: #5A4318;
+  --brand-color-brown-900: #3A2E14;
+
+
+  /* ═══ TYPOGRAPHY ════════════════════════════════ */
+
+  --brand-font-heading: "Playfair Display", Georgia, "Times New Roman", serif;
+  --brand-font-ui: -apple-system, "Segoe UI", Arial, sans-serif;
+  --brand-font-mono: "DM Mono", "Courier New", Courier, monospace;
+
+  /* Type scale */
+  --brand-text-2xs: 0.5625rem;
+  --brand-text-xs: 0.625rem;
+  --brand-text-sm: 0.75rem;
+  --brand-text-base: 0.8125rem;
+  --brand-text-md: 0.875rem;
+  --brand-text-lg: 1rem;
+  --brand-text-xl: 1.125rem;
+  --brand-text-2xl: 1.25rem;
+  --brand-text-3xl: 1.5rem;
+  --brand-text-4xl: 2rem;
+  --brand-text-5xl: 2.5rem;
+  --brand-text-6xl: 3rem;
+  --brand-text-hero: 4.5rem;
+
+  /* Line-height */
+  --brand-leading-tight: 1.15;
+  --brand-leading-snug: 1.3;
+  --brand-leading-normal: 1.5;
+  --brand-leading-relaxed: 1.7;
+
+
+  /* ═══ SPACING (px-named, clean grid) ═══════════
+     Every spacing value in main.css must come from
+     one of these tokens. */
+
+  --brand-space-px: 1px;
+  --brand-space-2: 2px;
+  --brand-space-4: 4px;
   --brand-space-6: 6px;
-  --brand-space-7: 7px;
-  --brand-space-sm: 8px;
-  --brand-space-9: 9px;
+  --brand-space-8: 8px;
   --brand-space-10: 10px;
-  --brand-space-11: 11px;
   --brand-space-12: 12px;
-  --brand-space-13: 13px;
   --brand-space-14: 14px;
-  --brand-space-15: 15px;
-  --brand-space-md: 16px;
+  --brand-space-16: 16px;
   --brand-space-18: 18px;
   --brand-space-20: 20px;
-  --brand-space-22: 22px;
-  --brand-space-lg: 24px;
+  --brand-space-24: 24px;
   --brand-space-28: 28px;
-  --brand-space-30: 30px;
   --brand-space-32: 32px;
   --brand-space-36: 36px;
-  --brand-space-xl: 40px;
+  --brand-space-40: 40px;
   --brand-space-48: 48px;
-  --brand-space-60: 60px;
+  --brand-space-56: 56px;
   --brand-space-64: 64px;
   --brand-space-72: 72px;
-  --brand-space-100: 100px;
+  --brand-space-80: 80px;
+  --brand-space-96: 96px;
   --brand-space-120: 120px;
-  --brand-space-150: 150px;
-  --brand-space-500: 500px;
-  --brand-space-640: 640px;
-  --brand-space-700: 700px;
-  --brand-space-720: 720px;
-  --brand-space-1100: 1100px;
 
-  --brand-radius-xxs: 3px;
+  /* Named aliases */
+  --brand-space-xs: 4px;
+  --brand-space-sm: 8px;
+  --brand-space-md: 16px;
+  --brand-space-lg: 24px;
+  --brand-space-xl: 40px;
+
+  /* Structural widths */
+  --brand-width-sm: 500px;
+  --brand-width-md: 640px;
+  --brand-width-lg: 720px;
+  --brand-width-xl: 900px;
+  --brand-width-max: 1100px;
+
+
+  /* ═══ BORDER RADIUS ════════════════════════════ */
+
   --brand-radius-xs: 4px;
   --brand-radius-sm: 6px;
-  --brand-radius-sm-plus: 7px;
   --brand-radius-md: 8px;
-  --brand-radius-card: 10px;
   --brand-radius-lg: 12px;
-  --brand-radius-xl: 14px;
+  --brand-radius-xl: 16px;
+  --brand-radius-card: 10px;
+  --brand-radius-pill: 999px;
   --brand-radius-circle: 50%;
   --brand-radius-tab: 10px 10px 0 0;
   --brand-radius-folder: 0 12px 12px 12px;
-  --brand-radius-pill: 999px;
 
-  --brand-font-ui: -apple-system, "Segoe UI", Arial, sans-serif;
-  --brand-font-mono: "Courier New", monospace;
 
-  --brand-shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
-  --brand-shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-  --brand-shadow-lg: 0 8px 24px rgba(0,0,0,0.18);
-  --brand-shadow-button: 0 4px 12px rgba(165, 36, 36, 0.3);
-  --brand-shadow-card-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
-  --brand-shadow-post-hover: 0 4px 10px rgba(0, 0, 0, 0.1);
-  --brand-shadow-pin: 0 2px 4px rgba(0, 0, 0, 0.15);
-  --brand-shadow-gold-ring: 0 0 0 3px rgba(240, 192, 80, 0.2);
-  --brand-shadow-approve-ring: 0 0 0 4px rgba(63, 168, 86, 0.2);
-  --brand-shadow-reject-ring: 0 0 0 4px rgba(165, 36, 36, 0.2);
-  --brand-shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+  /* ═══ SHADOWS (Layered / Tactile) ══════════════
+     Cards should feel like paper sitting on a desk.
+     Ambient lift + optional hard-edge offset. */
+
+  --brand-shadow-sm:
+    0 1px 3px rgba(26,20,16,0.07),
+    0 1px 2px rgba(26,20,16,0.05);
+  --brand-shadow-md:
+    0 4px 10px rgba(26,20,16,0.10),
+    0 2px 4px rgba(26,20,16,0.06);
+  --brand-shadow-lg:
+    0 12px 28px rgba(26,20,16,0.12),
+    0 4px 8px rgba(26,20,16,0.08);
+  --brand-shadow-xl:
+    0 20px 40px rgba(26,20,16,0.16),
+    0 8px 16px rgba(26,20,16,0.10);
+
+  /* Sharp-edged paper shadows (offset, no blur) */
+  --brand-shadow-hard:
+    3px 3px 0 rgba(26,20,16,0.10);
+  --brand-shadow-hard-lg:
+    5px 5px 0 rgba(26,20,16,0.08);
+
+  --brand-shadow-inset:
+    inset 0 2px 6px rgba(26,20,16,0.08);
+
+  /* Glow rings for interactive states */
+  --brand-shadow-glow-gold:
+    0 0 0 3px rgba(240,192,80,0.30),
+    0 0 20px rgba(240,192,80,0.10);
+  --brand-shadow-glow-crimson:
+    0 0 0 3px rgba(139,26,26,0.30),
+    0 0 20px rgba(139,26,26,0.10);
+  --brand-shadow-glow-success:
+    0 0 0 3px rgba(45,138,78,0.30),
+    0 0 20px rgba(45,138,78,0.10);
+
+  --brand-shadow-modal:
+    0 24px 48px rgba(26,20,16,0.25),
+    0 8px 16px rgba(26,20,16,0.15);
+  --brand-shadow-button:
+    0 4px 14px rgba(139,26,26,0.30);
+  --brand-shadow-button-gold:
+    0 4px 14px rgba(240,192,80,0.35);
+
+
+  /* ═══ TRANSITIONS ══════════════════════════════ */
+
+  --brand-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --brand-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --brand-ease-stamp: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --brand-duration-fast: 120ms;
+  --brand-duration-normal: 200ms;
+  --brand-duration-slow: 400ms;
+  --brand-duration-slower: 600ms;
+
+
+  /* ═══ Z-INDEX SCALE ════════════════════════════ */
+
+  --brand-z-base: 1;
+  --brand-z-tabs: 2;
+  --brand-z-sticky: 10;
+  --brand-z-overlay: 100;
+  --brand-z-modal: 150;
+  --brand-z-pin: 160;
+  --brand-z-consequence: 200;
 }
+
+
+/* ── Global Reset ────────────────────────────── */
 
 * {
   box-sizing: border-box;
@@ -122,4 +256,8 @@
 body {
   background: var(--brand-color-bg);
   font-family: var(--brand-font-ui);
+  color: var(--brand-color-ink);
+  line-height: var(--brand-leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
