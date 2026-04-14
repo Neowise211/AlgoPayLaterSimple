@@ -9,6 +9,7 @@ const state = {
   startTime: null,
   elapsedSeconds: 0,
   timerInterval: null,
+  playerName: "",
   sessionScore: 0,
   casesClosed: 0,
   leaderboards: { easy: [], medium: [], hard: [], extreme: [] },
@@ -64,10 +65,40 @@ function getRank(score) {
   return "Trainee Analyst";
 }
 
+function loadPlayerProfile() {
+  try {
+    const raw = localStorage.getItem("algopay_player");
+    if (!raw) return { name: "", casesClosed: 0, totalScore: 0 };
+    const p = JSON.parse(raw);
+    return {
+      name: typeof p.name === "string" ? p.name : "",
+      casesClosed: Number(p.casesClosed) || 0,
+      totalScore: Number(p.totalScore) || 0
+    };
+  } catch (e) {
+    return { name: "", casesClosed: 0, totalScore: 0 };
+  }
+}
+
+function savePlayerProfile() {
+  localStorage.setItem("algopay_player", JSON.stringify({
+    name: state.playerName,
+    casesClosed: state.casesClosed,
+    totalScore: state.sessionScore
+  }));
+}
+
 state.leaderboards = loadLeaderboards();
+
+var profile = loadPlayerProfile();
+state.playerName = profile.name;
+state.casesClosed = profile.casesClosed;
+state.sessionScore = profile.totalScore;
 
 window.state = state;
 window.loadLeaderboards = loadLeaderboards;
 window.saveLeaderboards = saveLeaderboards;
 window.addLeaderboardEntry = addLeaderboardEntry;
 window.getRank = getRank;
+window.loadPlayerProfile = loadPlayerProfile;
+window.savePlayerProfile = savePlayerProfile;

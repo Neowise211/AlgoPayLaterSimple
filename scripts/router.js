@@ -179,14 +179,15 @@ function renderBriefing() {
   }
 
   const applicant = state.currentCase.applicant;
-  const avatar = (applicant.name || "?").charAt(0).toUpperCase();
+  const caseId = state.currentCase.id || "easy";
+  const avatarSrc = "assets/avatar-" + caseId + ".png";
 
   briefingScreen.innerHTML = `
     <div class="briefing">
       <h2>CASE BRIEFING</h2>
       <div class="dossier">
         <div class="dossier-header">
-          <div class="dossier-avatar">${avatar}</div>
+          <div class="dossier-avatar"><img src="${avatarSrc}" alt="${applicant.name}"></div>
           <div>
             <div class="dossier-name">${applicant.name}</div>
             <div class="dossier-sub">Age ${applicant.age} · ${applicant.civilStatus} · ${applicant.address}</div>
@@ -455,16 +456,20 @@ function calculateAndShowScore() {
   state.sessionScore += breakdown.total;
   state.casesClosed += 1;
 
-  const rawName = prompt("Enter your name for the leaderboard:", "Player");
-  const cleanedName = typeof rawName === "string" ? rawName.trim() : "";
-  const playerName = (cleanedName || "Player").slice(0, 20);
+  if (!state.playerName) {
+    const rawName = prompt("Enter your name for the leaderboard:", "Player");
+    const cleanedName = typeof rawName === "string" ? rawName.trim() : "";
+    state.playerName = (cleanedName || "Player").slice(0, 20);
+  }
 
   window.addLeaderboardEntry(
     state.currentCase.id,
-    playerName,
+    state.playerName,
     breakdown.total,
     state.elapsedSeconds
   );
+
+  window.savePlayerProfile();
 
   state.latestScoreBreakdown = breakdown;
   state.latestVerdictCorrect = isCorrect;
@@ -902,7 +907,8 @@ function updateBadges() {
 function showBriefingModal() {
   if (!state.currentCase || !state.currentCase.applicant) return;
   var a = state.currentCase.applicant;
-  var initial = (a.name || "?").charAt(0).toUpperCase();
+  var caseId = state.currentCase.id || "easy";
+  var avatarSrc = "assets/avatar-" + caseId + ".png";
 
   var modal = document.getElementById("briefingModal");
   if (!modal) {
@@ -922,7 +928,7 @@ function showBriefingModal() {
       <div class="folder-interior">
         <div class="folder-content">
           <div class="folder-dossier-header">
-            <div class="folder-avatar">${initial}</div>
+            <div class="folder-avatar"><img src="${avatarSrc}" alt="${a.name}"></div>
             <div>
               <div class="folder-dossier-name">${a.name}</div>
               <div class="folder-dossier-sub">Age ${a.age} · ${a.civilStatus} · ${a.address}</div>
