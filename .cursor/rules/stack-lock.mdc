@@ -1,0 +1,49 @@
+---
+description: Lock the technology stack to vanilla HTML/CSS/JS only. No build tools, no frameworks.
+alwaysApply: true
+---
+
+# Rule: stack-lock
+
+This project uses a fixed, minimal technology stack. No agent may deviate without explicit user instruction.
+
+## Allowed
+
+| Concern | Choice |
+|---|---|
+| Markup | HTML5 (single index.html file) |
+| Styling | Plain CSS using CSS variables (in tokens.css and main.css) |
+| Utility classes | Tailwind CDN (loaded via script tag in HTML head) |
+| Logic | Vanilla JavaScript (ES2020 features OK) |
+| State | Plain JS object on window, with localStorage for persistence |
+| Data | Plain JS objects in scripts/cases.js |
+
+## Prohibited
+
+- React, Vue, Angular, Svelte, or any framework
+- TypeScript or JSX
+- npm, yarn, pnpm, package.json, node_modules
+- Vite, webpack, esbuild, or any build tool
+- Sass, Less, PostCSS, CSS Modules
+- Any state management library (Redux, Zustand, etc.)
+- Backend calls, fetch to APIs, GraphQL
+- Server-side rendering
+- Service workers (for v1)
+
+## What to Do When Asked to Use a Prohibited Technology
+
+Reply with:
+> "This project uses vanilla HTML/CSS/JS only — no [requested tech]. I can implement [feature] using [vanilla equivalent] instead. Should I proceed?"
+
+Wait for confirmation before proceeding.
+
+## File Discipline
+
+- All HTML in one file: `index.html`
+- All custom CSS split across `styles/tokens.css` (variables only) and `styles/main.css` (component styles)
+- All JS split across `scripts/state.js`, `scripts/cases.js`, `scripts/scoring.js`, `scripts/router.js`, `scripts/main.js`
+- Never create new top-level folders or files outside this structure without asking
+
+## Browser Targets
+
+Chrome 109+ and Firefox ESR 115+. No IE polyfills. No Safari-only features.

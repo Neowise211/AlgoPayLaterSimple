@@ -1,0 +1,58 @@
+---
+description: Design philosophy enforcement — feel over pixels, tokens over hardcoded values, physical interactions
+alwaysApply: true
+---
+
+# Rule: vibe-governance
+
+This is the design philosophy layer for Algo Pay — Loan Investigator. It governs how UI is implemented across the codebase.
+
+## Principle 1: Tokens over coordinates
+
+The Figma file is the source of truth for visual properties (colors, spacing, typography, shadows). It is NOT a pixel-perfect spec for layout coordinates.
+
+- Match the **vibe**: spacing ratios, visual weight, hierarchy
+- Replace fixed pixel positions with flex/grid
+- Replace fixed pixel heights with `min-height`, `aspect-ratio`, or content-driven sizing
+- Decorative overlays (paper textures) may use `position: absolute` as a non-structural layer
+
+## Principle 2: No design debt shortcuts
+
+- NEVER add inline `style=""` to work around a missing token
+- NEVER duplicate a token value — define once in tokens.css, reference everywhere
+- NEVER introduce a new color/spacing value without it being either a Figma extraction or a documented user decision
+
+## Principle 3: Interaction vibe — physical and deliberate
+
+This is a bureaucratic-detective game. Interactions should feel weighted, not bouncy.
+
+**Stamp mechanic (verdict submission):**
+- Use CSS `transform: scale()` and `transition` for a physical press-down feel
+- `ease-in` for the slam down, `ease-out` for the lift
+- No bounce, no spring physics
+
+**General interactions:**
+- Hover states: subtle brightness shift (`filter: brightness(1.05)`) — not color flips
+- Focus states: visible but understated outline — not glows
+- Scrolling: native, never custom scroll libraries
+- All animations: plain CSS transitions only (no JS animation libraries in v1)
+
+## Principle 4: Game terminology
+
+Use canonical terms in code comments and UI strings:
+
+| Avoid | Use |
+|---|---|
+| customer, client | Applicant |
+| post, tweet | FeedPost |
+| decision | Verdict |
+| flag, warning | Clue |
+| approve button | VerdictStamp |
+
+## Principle 5: When the spec is silent
+
+If you need to invent a component pattern (e.g., a toast notification not yet specified):
+1. Use only existing brand tokens
+2. Match the aesthetic of nearby components
+3. Add a comment in the code: `/* INVENTED — not in spec, follows vibe */`
+4. Mention it in your response so the user can verify

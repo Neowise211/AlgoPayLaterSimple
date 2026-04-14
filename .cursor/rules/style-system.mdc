@@ -1,0 +1,66 @@
+---
+description: Enforce CSS variable usage and the design token naming convention. No hardcoded colors or spacing.
+globs: ["styles/**", "**/*.html"]
+alwaysApply: true
+---
+
+# Rule: style-system
+
+All visual styling in this project flows through a strict design token system defined in `styles/tokens.css`.
+
+## Token Naming Convention
+
+Pattern: `--brand-[category]-[name]`
+
+| Category | Examples |
+|---|---|
+| `--brand-color-*` | bg, surface, ink, gold, crimson, success, warning |
+| `--brand-space-*` | xs (4px), sm (8px), md (16px), lg (24px), xl (40px) |
+| `--brand-radius-*` | sm (6px), md (8px), lg (12px), pill (999px) |
+| `--brand-font-*` | ui, mono |
+| `--brand-shadow-*` | sm, md, lg |
+
+## Hard Rules
+
+1. **No hardcoded colors anywhere.** Use `var(--brand-color-*)`. The only exception is inside `tokens.css` itself.
+2. **No hardcoded spacing values in main.css.** Use `var(--brand-space-*)`.
+3. **No hardcoded border-radius values.** Use `var(--brand-radius-*)`.
+4. **No new tokens without permission.** If you need a value that doesn't exist:
+   - STOP
+   - Ask the user: "I need a token `--brand-[category]-[name]` with value `[value]`. May I add it to tokens.css?"
+   - Wait for confirmation.
+
+## Tailwind Usage
+
+Tailwind utility classes (loaded via CDN) are allowed but discouraged for brand styling. Use them for:
+- Quick layout (flex, grid, gap) when faster than custom CSS
+- One-off utilities (text-center, hidden, etc.)
+
+Do NOT use Tailwind for:
+- Colors (use brand tokens via custom CSS classes)
+- Spacing on brand components
+- Anything in the design reference
+
+When in doubt, write custom CSS using brand tokens.
+
+## CSS File Discipline
+
+`styles/tokens.css`:
+- ONLY contains `:root { --brand-* }` definitions
+- ONLY contains the global reset (`* { box-sizing: border-box; }`) and base body styling
+- No component-specific styles ever
+
+`styles/main.css`:
+- All component styles
+- Every property value either uses a `var(--brand-*)` token, references a layout primitive (display, flex), or is a structural value (border-width 1px, transitions 200ms)
+- No `!important` unless documented why
+- No inline `style=""` attributes in HTML except for dynamic values (e.g., progress bar width)
+
+## Visual Hierarchy
+
+Match the existing Algo Pay aesthetic:
+- Cream/gold/crimson palette (warm, paper-themed)
+- Folder/stamp/dossier metaphors
+- Subtle textures (manila paper grain on folder bodies)
+- Soft shadows, never harsh
+- Rounded but not bubbly (use `--brand-radius-md` as default)

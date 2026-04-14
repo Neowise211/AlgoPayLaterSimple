@@ -1,0 +1,137 @@
+---
+description: Treat docs/design-reference.html as the authoritative visual specification. Port styles and structure verbatim.
+globs: ["**/*.html", "styles/**", "scripts/router.js"]
+alwaysApply: true
+---
+
+# Rule: visual-port-protocol
+
+The file `docs/design-reference.html` is the complete visual specification for every UI component in this project. It is a working prototype that defines exact appearance, structure, and interaction for all screens.
+
+## The Hard Rule
+
+Before writing or modifying ANY UI code (HTML markup, CSS rules, or JS that renders DOM), you MUST:
+
+1. Open `docs/design-reference.html`
+2. Find the matching CSS selector or HTML structure for the component you're about to write
+3. Port the rules and structure verbatim into the target file
+4. Adjust ONLY for these allowed differences:
+   - File location (move CSS from `<style>` block to `styles/main.css`)
+   - Token substitution (replace hardcoded values with `var(--brand-*)` tokens from `tokens.css` where a token exists)
+   - Dynamic content (replace static strings with template literals or innerHTML assignments)
+
+## What "Port Verbatim" Means
+
+- Same class names
+- Same HTML structure and nesting
+- Same CSS property values for gradients, shadows, borders, transitions
+- Same animation keyframes
+- Same hover/active/selected states
+
+## What NOT to Do
+
+- Do NOT reinvent gradients when one exists in `design-reference.html`. The dossier background is `linear-gradient(135deg, #F0C050, #D4A630)` — never substitute a different angle or color.
+- Do NOT substitute "similar" colors. `#F0C050` is the gold. Never `#FFD700`, never `#F5C542`.
+- Do NOT flatten complex backgrounds. The folder tabs use a `repeating-linear-gradient` overlay for manila texture — port it exactly.
+- Do NOT omit shadows, transitions, or hover states present in the reference.
+- Do NOT redesign components that already exist in the reference, even if you think a different layout would be cleaner.
+
+## When to Use Tokens vs. Verbatim Values
+
+Two cases:
+
+**Case A — Token exists in `tokens.css`:** Replace the verbatim value with the token.
+```css
+/* design-reference.html */ background: #F0C050;
+/* main.css (correct port) */ background: var(--brand-color-gold);
+```
+
+**Case B — Value is one-off and no matching token:** Port the value verbatim and add a code comment.
+```css
+/* design-reference.html */ background: linear-gradient(135deg, #F0C050, #D4A630);
+/* main.css (correct port) */ background: linear-gradient(135deg, #F0C050, #D4A630); /* Note: dossier-specific gradient. Two-stop gradient pattern not yet tokenized. */
+```
+
+If you find yourself needing the same one-off value in 3+ places, STOP and ask: "Should I add a `--brand-gradient-dossier` token to tokens.css?"
+
+## When the Reference Is Silent
+
+The reference does NOT cover:
+- Animations beyond CSS hover/active states (e.g., stamp-slam, score reveal cascade)
+- Toast notifications
+- Tutorial tooltips
+- Any case content beyond the Easy case (Kevin Dela Cruz)
+
+For these, you may invent — but:
+1. Use only existing brand tokens from `tokens.css`
+2. Match the aesthetic of surrounding components in the reference
+3. Add a code comment: `/* INVENTED — not in design-reference.html, follows surrounding vibe */`
+
+## Component-to-Selector Map
+
+When a prompt asks you to build one of these components, port from these exact selectors in `docs/design-reference.html`:
+
+### Top bar and navigation
+`.top-actions`, `.logo`, `.nav-links`, `.nav-link`, `.btn-primary`, `.btn-secondary`, `.btn-start`
+
+### Home screen
+`.home`, `.home h1`, `.home .tagline`, `.home .stats`, `.stat-card`
+
+### Difficulty select
+`.difficulty-select`, `.diff-grid`, `.diff-card`, `.diff-card.easy`, `.diff-card.medium`, `.diff-card.hard`, `.diff-card.extreme`, `.diff-badge`, `.case-desc`, `.best-time`, `.coming-soon`
+
+### Briefing
+`.briefing`, `.dossier`, `.dossier-header`, `.dossier-avatar`, `.dossier-name`, `.dossier-sub`, `.dossier-fields`, `.dossier-field`, `.briefing-quote`, `.briefing-actions`
+
+### Investigation top bar
+`.investigation`, `.inv-topbar`, `.inv-topbar-right`, `.timer-display`, `.evidence-btn`, `.evidence-badge`, `.inv-context`
+
+### Folder tabs and feed
+`.inv-body`, `.folder-tabs`, `.folder-tab`, `.folder-tab.active`, `.platform-icon`, `.platform-icon.fb/.ig/.li/.tw`, `.folder-body`
+
+### Post cards
+`.post`, `.post.pinned`, `.pin-icon`, `.post-header`, `.post-avatar`, `.post-author`, `.post-meta`, `.post-content`, `.post-image`, `.post-engagement`
+
+### Pin classification panel
+`.pin-overlay`, `.pin-panel`, `.pin-panel-header`, `.close-btn`, `.pin-quote`, `@keyframes slideIn`
+
+### Vouchers
+`.voucher-tray`, `.voucher-card`, `.voucher-card.active`, `.voucher-card.v-auto`, `.voucher-card.v-flash`, `.voucher-icon`, `.voucher-label`
+
+### Pin steps
+`.pin-step`, `.step-label`, `.radio-option`, `.radio-option.selected`, `.radio-dot`, `.radio-text`, `.chip-grid`, `.chip`, `.chip.selected`, `.pin-note`
+
+### Pin footer
+`.pin-footer`, `.strength-preview`, `.strength-stars`, `.pin-actions`, `.btn-cancel`, `.btn-save`
+
+### Verdict
+`.verdict`, `.verdict-intro`, `.verdict-options`, `.verdict-option`, `.verdict-option.approve`, `.verdict-option.reject`, `.verdict-option.selected`, `.verdict-icon`, `.verdict-title`, `.verdict-desc`
+
+### Score
+`.score-screen`, `.score-subtitle`, `.verdict-result`, `.verdict-result.correct`, `.verdict-result.wrong`, `.score-big`, `.score-time`, `.score-breakdown`, `.score-row`, `.score-actions`
+
+### Consequence modal
+`.consequence-overlay`, `.consequence-modal`, `.consequence-header`, `.consequence-sender`, `.consequence-av`, `.consequence-subject`, `.consequence-body`, `.consequence-quote`, `.consequence-impact`, `.impact-label`, `.impact-grid`, `.impact-card`, `.consequence-actions`
+
+### Leaderboard
+`.leaderboard`, `.lb-tabs`, `.lb-tab`, `.lb-tab.active`, `.lb-list`, `.lb-row`, `.lb-row.header`, `.lb-row.you`, `.lb-rank`, `.lb-empty`
+
+## Mandatory Visual Parity Check
+
+After completing any UI prompt:
+
+1. Open `docs/design-reference.html` in one browser window
+2. Open the actual app (`index.html`) in another window
+3. Place them side-by-side at 1280×720
+4. Compare: gradients, colors, spacing, typography weights, shadow intensity, hover states
+5. If anything drifts beyond ±4px spacing or any color/gradient mismatch, the prompt is NOT done. Re-port from the reference.
+
+This check is non-negotiable. Skipping it produces "kinda right but off" results.
+
+## What This File Is NOT
+
+`docs/design-reference.html` is a visual prototype. It is NOT the production code. Do NOT:
+- Copy its inline `<script>` block as the app's logic (the app uses split files: state.js, router.js, etc.)
+- Copy its single-file structure (the app is multi-file)
+- Treat its placeholder/stub functionality as complete (it only has 1 case, the app needs 4)
+- Edit `docs/design-reference.html` to "fix" anything — it is read-only spec

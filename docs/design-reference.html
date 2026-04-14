@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Algo Pay — Loan Investigator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, "Segoe UI", Arial, sans-serif; background: #F5F0E6; color: #2C1810; min-height: 100vh; }
+.app { max-width: 1280px; margin: 0 auto; min-height: 100vh; position: relative; }
+.logo { font-size: 22px; font-weight: 800; }
+.logo .red { color: #A52424; }
+.logo .gold { color: #F0C050; }
+button { font-family: inherit; cursor: pointer; border: none; }
+.btn-primary { background: #A52424; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; transition: all 0.15s; }
+.btn-primary:hover { background: #7A1818; transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secondary { background: #F5E5B8; color: #A52424; padding: 10px 18px; border-radius: 8px; font-weight: 600; font-size: 13px; border: 1px solid #F0C050; transition: all 0.15s; }
+.btn-secondary:hover { background: #F0C050; }
+.hidden { display: none !important; }
+
+/* HOME */
+.home { padding: 60px 40px; text-align: center; }
+.home h1 { font-size: 48px; color: #A52424; margin: 30px 0 10px; letter-spacing: -1px; }
+.home .tagline { color: #8B6914; font-size: 18px; font-style: italic; margin-bottom: 40px; }
+.home .stats { display: flex; justify-content: center; gap: 24px; margin-bottom: 40px; }
+.stat-card { background: #FFF8E7; border: 1px solid #E0D9C7; padding: 16px 24px; border-radius: 8px; min-width: 150px; }
+.stat-card .label { font-size: 11px; color: #8B6914; font-weight: 700; letter-spacing: 1px; }
+.stat-card .value { font-size: 20px; color: #A52424; font-weight: 700; margin-top: 4px; }
+.btn-start { background: #A52424; color: white; padding: 16px 48px; font-size: 18px; font-weight: 700; border-radius: 10px; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(165,36,36,0.3); }
+
+/* DIFFICULTY SELECT */
+.difficulty-select { padding: 40px; }
+.difficulty-select h2 { text-align: center; color: #A52424; font-size: 32px; margin-bottom: 30px; }
+.diff-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1100px; margin: 0 auto; }
+.diff-card { background: white; border: 2px solid #E0D9C7; border-radius: 12px; padding: 24px; text-align: center; transition: all 0.2s; cursor: pointer; position: relative; }
+.diff-card:hover { transform: translateY(-4px); border-color: #F0C050; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+.diff-card.easy { border-top: 4px solid #3FA856; }
+.diff-card.medium { border-top: 4px solid #F0C050; }
+.diff-card.hard { border-top: 4px solid #E89040; }
+.diff-card.extreme { border-top: 4px solid #A52424; }
+.diff-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 12px; }
+.diff-card.easy .diff-badge { background: #E8F5E8; color: #2A7D3E; }
+.diff-card.medium .diff-badge { background: #FBF3DA; color: #8B6914; }
+.diff-card.hard .diff-badge { background: #FDE8D5; color: #C66A1A; }
+.diff-card.extreme .diff-badge { background: #F5E0E0; color: #A52424; }
+.diff-card h3 { font-size: 18px; color: #2C1810; margin-bottom: 8px; }
+.diff-card .case-desc { font-size: 12px; color: #6B4E1F; margin-bottom: 12px; }
+.diff-card .best-time { font-size: 11px; color: #8B6914; font-weight: 600; }
+.coming-soon { position: absolute; top: 10px; right: 10px; background: #8B6914; color: white; font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; }
+
+/* BRIEFING */
+.briefing { padding: 40px; }
+.briefing h2 { text-align: center; color: #A52424; font-size: 28px; margin-bottom: 24px; }
+.dossier { max-width: 720px; margin: 0 auto; background: linear-gradient(135deg, #F0C050, #D4A630); padding: 28px; border-radius: 14px; color: white; box-shadow: 0 8px 24px rgba(240,192,80,0.3); }
+.dossier-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.3); }
+.dossier-avatar { width: 64px; height: 64px; background: #F5F0E6; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.dossier-name { font-size: 22px; font-weight: 700; }
+.dossier-sub { font-size: 13px; opacity: 0.9; }
+.dossier-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dossier-field .label { font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: 0.85; }
+.dossier-field .value { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.briefing-quote { max-width: 720px; margin: 20px auto; text-align: center; color: #A52424; font-style: italic; font-size: 14px; padding: 12px; }
+.briefing-actions { text-align: center; margin-top: 24px; }
+
+/* INVESTIGATION */
+.investigation { height: 100vh; display: flex; flex-direction: column; }
+.inv-topbar { background: #EAE4D5; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #A52424; }
+.inv-topbar-right { display: flex; gap: 8px; align-items: center; }
+.timer-display { background: #2C1810; color: #F0C050; font-family: 'Courier New', monospace; font-weight: 700; font-size: 18px; padding: 8px 16px; border-radius: 8px; letter-spacing: 2px; }
+.evidence-btn { position: relative; }
+.evidence-badge { background: #A52424; color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+.inv-context { background: #FFF8E7; padding: 6px 20px; display: flex; justify-content: space-between; font-size: 11px; border-bottom: 1px solid #EAE4D5; }
+.inv-context .case-label { color: #A52424; font-weight: 600; }
+.inv-context .flags { color: #A52424; font-weight: 600; }
+.inv-body { flex: 1; padding: 20px 30px 0; background: #F5F0E6; overflow: hidden; display: flex; flex-direction: column; }
+.folder-tabs { display: flex; gap: 4px; align-items: flex-end; padding-left: 20px; }
+.folder-tab { background: linear-gradient(180deg, #D4C08A, #C5B078); padding: 8px 18px 10px; border-radius: 10px 10px 0 0; border: 1.5px solid #A89362; border-bottom: none; font-weight: 600; font-size: 12px; color: #5A4318; display: flex; align-items: center; gap: 6px; cursor: pointer; opacity: 0.85; transition: all 0.2s; background-image: repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(90,67,24,0.05) 2px, rgba(90,67,24,0.05) 3px), linear-gradient(180deg, #D4C08A, #C5B078); }
+.folder-tab.active { background: linear-gradient(180deg, #EDDFB8, #DCC89A); padding: 10px 22px 14px; font-size: 13px; color: #6B4E1F; opacity: 1; z-index: 2; margin-bottom: -2px; background-image: repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(139,105,20,0.04) 2px, rgba(139,105,20,0.04) 3px), linear-gradient(180deg, #EDDFB8, #DCC89A); font-weight: 700; }
+.platform-icon { width: 18px; height: 18px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700; }
+.platform-icon.fb { background: #1877F2; }
+.platform-icon.ig { background: linear-gradient(45deg, #F58529, #E1306C); }
+.platform-icon.li { background: #0077B5; }
+.platform-icon.tw { background: #000; }
+.folder-body { flex: 1; background: linear-gradient(180deg, #EDDFB8, #E8D9B0); border: 1.5px solid #B8A272; border-radius: 0 12px 12px 12px; padding: 20px 24px; overflow-y: auto; box-shadow: 0 4px 12px rgba(139,105,20,0.12); background-image: repeating-linear-gradient(90deg, transparent 0, transparent 2px, rgba(139,105,20,0.04) 2px, rgba(139,105,20,0.04) 3px), linear-gradient(180deg, #EDDFB8, #E8D9B0); }
+
+/* POST CARDS */
+.post { background: white; border: 1px solid #DDD; border-radius: 10px; padding: 14px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.06); position: relative; }
+.post:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.post.pinned { border: 2px solid #F0C050; box-shadow: 0 0 0 3px rgba(240,192,80,0.2); }
+.pin-icon { position: absolute; top: -8px; right: -8px; background: #F0C050; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+.post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.post-avatar { width: 36px; height: 36px; background: #C9A96E; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; }
+.post-author { font-weight: 600; font-size: 14px; color: #1c1e21; }
+.post-meta { font-size: 11px; color: #65676b; }
+.post-content { font-size: 14px; color: #1c1e21; line-height: 1.5; }
+.post-image { background: linear-gradient(135deg, #B8D4E3, #7FA8BF); height: 100px; border-radius: 6px; margin: 10px 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; opacity: 0.8; }
+.post-engagement { display: flex; gap: 14px; margin-top: 10px; font-size: 12px; color: #65676b; border-top: 1px solid #EAEAEA; padding-top: 8px; }
+
+/* PIN CLASSIFICATION PANEL */
+.pin-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); z-index: 100; display: flex; justify-content: flex-end; }
+.pin-panel { width: 400px; background: linear-gradient(180deg, #FFF8E7, #F5E8C8); border-left: 3px solid #F0C050; box-shadow: -8px 0 24px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.pin-panel-header { background: #A52424; color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; }
+.pin-panel-header h3 { font-size: 13px; font-weight: 700; letter-spacing: 0.5px; }
+.close-btn { background: transparent; color: white; font-size: 20px; opacity: 0.7; }
+.pin-quote { padding: 12px 18px; background: #FBF3DA; border-bottom: 1px solid #E8DBB0; font-size: 12px; color: #4A3810; font-style: italic; }
+.voucher-tray { padding: 10px 14px; background: #FDF6DC; border-bottom: 1px solid #E8DBB0; display: flex; gap: 6px; overflow-x: auto; }
+.voucher-card { flex: 0 0 auto; width: 90px; background: white; border: 1.5px solid; border-radius: 8px; padding: 6px; cursor: pointer; transition: all 0.2s; }
+.voucher-card:hover { transform: translateY(-2px); }
+.voucher-card.active { border-width: 2.5px; box-shadow: 0 2px 8px rgba(240,192,80,0.3); }
+.voucher-card.v-auto { border-color: #F0C050; }
+.voucher-card.v-flash { border-color: #7B4FC9; }
+.voucher-icon { height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; margin-bottom: 4px; }
+.v-auto .voucher-icon { background: linear-gradient(135deg, #F0C050, #D4A630); }
+.v-flash .voucher-icon { background: linear-gradient(135deg, #7B4FC9, #4A2D80); }
+.voucher-label { font-size: 8px; font-weight: 700; color: #6B4E1F; text-align: center; letter-spacing: 0.3px; }
+.pin-step { padding: 14px 18px; border-bottom: 1px solid #E8DBB0; }
+.step-label { font-size: 10px; color: #8B6914; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px; }
+.radio-option { background: white; border: 1px solid #D4CDB8; border-radius: 8px; padding: 9px 11px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; }
+.radio-option.selected { background: white; border: 2px solid #A52424; box-shadow: 0 2px 4px rgba(165,36,36,0.15); }
+.radio-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #B8A272; flex-shrink: 0; }
+.radio-option.selected .radio-dot { background: #A52424; border-color: #A52424; position: relative; }
+.radio-option.selected .radio-dot::after { content: ''; position: absolute; top: 3px; left: 3px; width: 4px; height: 4px; background: white; border-radius: 50%; }
+.radio-text { font-weight: 600; font-size: 12px; color: #4A3810; }
+.radio-option.selected .radio-text { color: #A52424; }
+.chip-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+.chip { background: white; border: 1px solid #D4CDB8; border-radius: 5px; padding: 7px 8px; font-size: 11px; text-align: center; color: #4A3810; cursor: pointer; transition: all 0.2s; }
+.chip:hover { border-color: #F0C050; }
+.chip.selected { background: #A52424; color: white; border-color: #A52424; font-weight: 600; }
+.pin-note { width: 100%; padding: 8px 10px; border: 1px solid #D4CDB8; border-radius: 6px; font-family: inherit; font-size: 12px; resize: none; height: 48px; }
+.pin-footer { padding: 14px 18px; background: white; border-top: 2px solid #F0C050; margin-top: auto; }
+.strength-preview { display: flex; justify-content: space-between; font-size: 11px; color: #8B6914; margin-bottom: 10px; }
+.strength-stars { color: #A52424; font-weight: 700; }
+.pin-actions { display: flex; gap: 8px; }
+.pin-actions button { flex: 1; padding: 10px; border-radius: 7px; font-weight: 700; font-size: 12px; }
+.btn-cancel { background: white; border: 1.5px solid #B8A272; color: #8B6914; }
+.btn-save { background: #A52424; color: white; }
+
+/* VERDICT SCREEN */
+.verdict { padding: 40px; text-align: center; }
+.verdict h2 { font-size: 32px; color: #A52424; margin-bottom: 10px; }
+.verdict-intro { color: #8B6914; font-size: 14px; margin-bottom: 30px; }
+.verdict-options { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 700px; margin: 0 auto 30px; }
+.verdict-option { background: white; border: 3px solid; border-radius: 14px; padding: 40px 20px; cursor: pointer; transition: all 0.2s; }
+.verdict-option:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+.verdict-option.approve { border-color: #3FA856; }
+.verdict-option.approve.selected { background: #E8F5E8; box-shadow: 0 0 0 4px rgba(63,168,86,0.2); }
+.verdict-option.reject { border-color: #A52424; }
+.verdict-option.reject.selected { background: #F5E0E0; box-shadow: 0 0 0 4px rgba(165,36,36,0.2); }
+.verdict-icon { font-size: 48px; margin-bottom: 12px; }
+.verdict-title { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.verdict-option.approve .verdict-title { color: #3FA856; }
+.verdict-option.reject .verdict-title { color: #A52424; }
+.verdict-desc { font-size: 12px; color: #6B4E1F; }
+
+/* SCORE SCREEN */
+.score-screen { padding: 40px; text-align: center; }
+.score-screen h2 { font-size: 36px; color: #A52424; margin-bottom: 6px; }
+.score-subtitle { color: #8B6914; font-size: 14px; margin-bottom: 30px; }
+.verdict-result { display: inline-block; padding: 12px 32px; border-radius: 10px; font-size: 20px; font-weight: 800; letter-spacing: 2px; margin-bottom: 24px; }
+.verdict-result.correct { background: #E8F5E8; color: #2A7D3E; border: 2px solid #3FA856; }
+.verdict-result.wrong { background: #F5E0E0; color: #A52424; border: 2px solid #A52424; }
+.score-big { font-size: 72px; font-weight: 800; color: #A52424; margin: 10px 0; }
+.score-time { font-size: 16px; color: #8B6914; margin-bottom: 24px; }
+.score-breakdown { max-width: 500px; margin: 0 auto 24px; background: white; border-radius: 12px; padding: 20px; border: 1px solid #E0D9C7; }
+.score-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F0EADB; font-size: 13px; }
+.score-row:last-child { border-bottom: none; font-weight: 700; padding-top: 12px; font-size: 15px; color: #A52424; }
+.score-actions { margin-top: 20px; display: flex; gap: 12px; justify-content: center; }
+
+/* CONSEQUENCE */
+.consequence-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.consequence-modal { background: white; max-width: 640px; width: 100%; border-radius: 10px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+.consequence-header { background: #A52424; color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+.consequence-sender { display: flex; align-items: center; gap: 10px; }
+.consequence-av { width: 32px; height: 32px; background: #F0C050; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #A52424; font-weight: 700; font-size: 13px; }
+.consequence-subject { padding: 16px 20px; border-bottom: 1px solid #F0EADB; }
+.consequence-subject .label { font-size: 10px; color: #8B6914; font-weight: 700; letter-spacing: 1px; }
+.consequence-subject .text { color: #A52424; font-weight: 600; font-size: 15px; margin-top: 4px; }
+.consequence-body { padding: 20px; color: #3A2E14; line-height: 1.7; font-size: 13px; }
+.consequence-body p { margin-bottom: 12px; }
+.consequence-quote { padding: 12px 14px; background: #FBF3DA; border-left: 3px solid #F0C050; font-style: italic; color: #6B4E1F; margin: 12px 0; }
+.consequence-impact { padding: 14px 20px; background: #FBF3DA; border-top: 2px solid #F0C050; }
+.impact-label { font-size: 10px; color: #8B6914; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.impact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.impact-card { background: white; padding: 10px; border-radius: 6px; border: 1px solid #E0D9C7; text-align: center; }
+.impact-card .lbl { font-size: 9px; color: #8B6914; font-weight: 700; letter-spacing: 0.5px; }
+.impact-card .val { font-size: 15px; color: #A52424; font-weight: 700; margin-top: 2px; }
+.consequence-actions { padding: 14px 20px; display: flex; gap: 10px; }
+.consequence-actions button { flex: 1; padding: 11px; border-radius: 7px; font-weight: 700; font-size: 12px; }
+
+/* LEADERBOARD */
+.leaderboard { padding: 40px; max-width: 900px; margin: 0 auto; }
+.leaderboard h2 { color: #A52424; text-align: center; font-size: 28px; margin-bottom: 20px; }
+.lb-tabs { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.lb-tab { padding: 8px 18px; background: white; border: 1px solid #E0D9C7; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; color: #8B6914; transition: all 0.2s; }
+.lb-tab.active { background: #A52424; color: white; border-color: #A52424; }
+.lb-list { background: white; border-radius: 12px; border: 1px solid #E0D9C7; overflow: hidden; }
+.lb-row { display: grid; grid-template-columns: 60px 1fr 120px 100px; padding: 14px 20px; border-bottom: 1px solid #F0EADB; align-items: center; font-size: 14px; }
+.lb-row:last-child { border-bottom: none; }
+.lb-row.header { background: #FBF3DA; font-weight: 700; font-size: 11px; color: #8B6914; letter-spacing: 1px; }
+.lb-row.you { background: #FFF8E7; font-weight: 600; }
+.lb-rank { font-weight: 700; color: #A52424; font-size: 16px; }
+.lb-empty { padding: 40px; text-align: center; color: #8B6914; font-style: italic; }
+
+/* TOP ACTIONS */
+.top-actions { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: #EAE4D5; border-bottom: 1px solid #D4CDB8; }
+.top-actions .logo { font-size: 20px; }
+.nav-links { display: flex; gap: 10px; }
+.nav-link { background: transparent; color: #8B6914; font-weight: 600; padding: 8px 14px; border-radius: 6px; font-size: 13px; }
+.nav-link:hover { background: #F5E5B8; color: #A52424; }
+
+/* ANIMATIONS */
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.pulse { animation: pulse 0.3s ease; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP NAV -->
+  <div class="top-actions" id="topNav">
+    <div class="logo"><span class="red">Algo</span><span class="red">₱</span><span class="gold">Pay</span></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="showScreen('home')">Home</button>
+      <button class="nav-link" onclick="showScreen('leaderboard')">Leaderboard</button>
+    </div>
+  </div>
+
+  <!-- HOME SCREEN -->
+  <div id="screen-home" class="screen">
+    <div class="home">
+      <h1>LOAN INVESTIGATOR</h1>
+      <p class="tagline">"Catch the liar before you approve the loan."</p>
+      <div class="stats">
+        <div class="stat-card">
+          <div class="label">CASES CLOSED</div>
+          <div class="value" id="casesClosed">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">TOTAL SCORE</div>
+          <div class="value" id="totalScore">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">CURRENT RANK</div>
+          <div class="value" id="currentRank">🔰 Trainee</div>
+        </div>
+      </div>
+      <button class="btn-start" onclick="showScreen('difficulty')">START INVESTIGATING</button>
+    </div>
+  </div>
+
+  <!-- DIFFICULTY SELECT -->
+  <div id="screen-difficulty" class="screen hidden">
+    <div class="difficulty-select">
+      <h2>SELECT DIFFICULTY</h2>
+      <div class="diff-grid">
+        <div class="diff-card easy" onclick="startCase('easy')">
+          <span class="diff-badge">EASY</span>
+          <h3>Underage Applicant</h3>
+          <p class="case-desc">A young applicant requesting a small personal loan. Something feels off...</p>
+          <div class="best-time">Best: <span id="best-easy">—</span></div>
+        </div>
+        <div class="diff-card medium" onclick="alert(&quot;Medium case pending Franco&apos;s content — coming soon!&quot;)">
+          <span class="coming-soon">TBD</span>
+          <span class="diff-badge">MEDIUM</span>
+          <h3>Pesto Case</h3>
+          <p class="case-desc">Small business loan for a food venture. Real or fake?</p>
+          <div class="best-time">Best: —</div>
+        </div>
+        <div class="diff-card hard" onclick="alert(&quot;Hard case pending Franco&apos;s content — coming soon!&quot;)">
+          <span class="coming-soon">TBD</span>
+          <span class="diff-badge">HARD</span>
+          <h3>Wi-Fi Thief</h3>
+          <p class="case-desc">Neighborhood complaints vs polished online presence.</p>
+          <div class="best-time">Best: —</div>
+        </div>
+        <div class="diff-card extreme" onclick="alert(&quot;Extreme case pending Franco&apos;s content — coming soon!&quot;)">
+          <span class="coming-soon">TBD</span>
+          <span class="diff-badge">EXTREME</span>
+          <h3>HUAC Case</h3>
+          <p class="case-desc">Everything screams reject. But is that the right call?</p>
+          <div class="best-time">Best: —</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BRIEFING -->
+  <div id="screen-briefing" class="screen hidden">
+    <div class="briefing">
+      <h2>CASE BRIEFING</h2>
+      <div class="dossier">
+        <div class="dossier-header">
+          <div class="dossier-avatar">👤</div>
+          <div>
+            <div class="dossier-name">Kevin Dela Cruz</div>
+            <div class="dossier-sub">Age 21 · Single · Quezon City</div>
+          </div>
+        </div>
+        <div class="dossier-fields">
+          <div class="dossier-field"><div class="label">EMPLOYER</div><div class="value">StarBrew Coffee Co.</div></div>
+          <div class="dossier-field"><div class="label">POSITION</div><div class="value">Shift Supervisor</div></div>
+          <div class="dossier-field"><div class="label">TENURE</div><div class="value">2 years</div></div>
+          <div class="dossier-field"><div class="label">MONTHLY INCOME</div><div class="value">₱28,000</div></div>
+          <div class="dossier-field"><div class="label">LOAN AMOUNT</div><div class="value">₱50,000</div></div>
+          <div class="dossier-field"><div class="label">LOAN PURPOSE</div><div class="value">Laptop for online study</div></div>
+          <div class="dossier-field"><div class="label">DEPENDENTS</div><div class="value">0</div></div>
+          <div class="dossier-field"><div class="label">ADDRESS</div><div class="value">Quezon City, Metro Manila</div></div>
+        </div>
+      </div>
+      <p class="briefing-quote">"Mukhang bata pa 'to, pero may trabaho daw. Tingnan mo muna bago mo i-approve ha." — Ate Vivien</p>
+      <div class="briefing-actions">
+        <button class="btn-secondary" onclick="showScreen('difficulty')" style="margin-right:10px;">← BACK</button>
+        <button class="btn-primary" onclick="startInvestigation()">BEGIN INVESTIGATION →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVESTIGATION -->
+  <div id="screen-investigation" class="screen hidden">
+    <div class="investigation">
+      <div class="inv-topbar">
+        <div class="logo"><span class="red">Algo</span><span class="red">₱</span><span class="gold">Pay</span></div>
+        <div class="inv-topbar-right">
+          <div class="timer-display" id="timer">00:00</div>
+          <button class="btn-secondary" onclick="showBriefingModal()">View Application</button>
+          <button class="btn-secondary evidence-btn" onclick="showEvidenceList()">📌 Evidence<span class="evidence-badge" id="evidenceBadge">0</span></button>
+          <button class="btn-primary" id="submitBtn" onclick="goToVerdict()" disabled>SUBMIT VERDICT →</button>
+        </div>
+      </div>
+      <div class="inv-context">
+        <div class="case-label">Case · Kevin Dela Cruz · ₱50,000 Personal Loan</div>
+        <div class="flags">🚩 Red flags found: <span id="flagCount">0</span></div>
+      </div>
+      <div class="inv-body">
+        <div class="folder-tabs" id="folderTabs">
+          <div class="folder-tab active" data-platform="facebook" onclick="switchPlatform('facebook')">
+            <span class="platform-icon fb">f</span> Facebook
+          </div>
+          <div class="folder-tab" data-platform="instagram" onclick="switchPlatform('instagram')">
+            <span class="platform-icon ig">ig</span> Instagram
+          </div>
+          <div class="folder-tab" data-platform="linkedin" onclick="switchPlatform('linkedin')">
+            <span class="platform-icon li">in</span> LinkedIn
+          </div>
+          <div class="folder-tab" data-platform="twitter" onclick="switchPlatform('twitter')">
+            <span class="platform-icon tw">X</span> X/Twitter
+          </div>
+        </div>
+        <div class="folder-body" id="feedArea"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN CLASSIFICATION PANEL -->
+  <div id="pinPanel" class="pin-overlay hidden">
+    <div class="pin-panel">
+      <div class="pin-panel-header">
+        <h3>📌 CLASSIFY EVIDENCE</h3>
+        <button class="close-btn" onclick="closePinPanel()">✕</button>
+      </div>
+      <div class="pin-quote" id="pinQuote"></div>
+
+      <div class="voucher-tray">
+        <div class="voucher-card v-auto" onclick="toggleVoucher('auto')" id="voucherAuto">
+          <div class="voucher-icon">🟡</div>
+          <div class="voucher-label">AUTO<br>CHECKOUT</div>
+        </div>
+        <div class="voucher-card v-flash" onclick="toggleVoucher('flash')" id="voucherFlash">
+          <div class="voucher-icon">⚡</div>
+          <div class="voucher-label">FLASH<br>DEAL</div>
+        </div>
+      </div>
+
+      <div class="pin-step">
+        <div class="step-label">STEP 1 · WHY SUSPICIOUS?</div>
+        <div class="radio-option" onclick="selectReason('contradiction')" data-reason="contradiction">
+          <div class="radio-dot"></div>
+          <div class="radio-text">No Match / Contradiction</div>
+        </div>
+        <div class="radio-option" onclick="selectReason('misinformation')" data-reason="misinformation">
+          <div class="radio-dot"></div>
+          <div class="radio-text">Misinformation</div>
+        </div>
+        <div class="radio-option" onclick="selectReason('other')" data-reason="other">
+          <div class="radio-dot"></div>
+          <div class="radio-text">Other Red Flag</div>
+        </div>
+      </div>
+
+      <div class="pin-step">
+        <div class="step-label">STEP 2 · WHICH FIELD?</div>
+        <div class="chip-grid" id="chipGrid">
+          <div class="chip" data-field="age">Age</div>
+          <div class="chip" data-field="address">Address</div>
+          <div class="chip" data-field="employer">Employer</div>
+          <div class="chip" data-field="position">Position</div>
+          <div class="chip" data-field="tenure">Tenure</div>
+          <div class="chip" data-field="income">Income</div>
+          <div class="chip" data-field="purpose">Purpose</div>
+          <div class="chip" data-field="dependents">Dependents</div>
+        </div>
+      </div>
+
+      <div class="pin-step">
+        <div class="step-label">STEP 3 · QUICK NOTE (OPTIONAL)</div>
+        <textarea class="pin-note" id="pinNote" placeholder="e.g., Post says he's 17 but applicant declared 21..."></textarea>
+      </div>
+
+      <div class="pin-footer">
+        <div class="strength-preview">
+          <span>Evidence strength</span>
+          <span class="strength-stars" id="strengthStars">—</span>
+        </div>
+        <div class="pin-actions">
+          <button class="btn-cancel" onclick="closePinPanel()">Cancel</button>
+          <button class="btn-save" onclick="saveEvidence()">SAVE EVIDENCE →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERDICT -->
+  <div id="screen-verdict" class="screen hidden">
+    <div class="verdict">
+      <h2>YOUR VERDICT</h2>
+      <p class="verdict-intro">Based on your investigation, what's your recommendation for Kevin Dela Cruz?</p>
+      <div class="verdict-options">
+        <div class="verdict-option approve" onclick="selectVerdict('approve')" id="opt-approve">
+          <div class="verdict-icon">✓</div>
+          <div class="verdict-title">APPROVE</div>
+          <div class="verdict-desc">Application is clean. Proceed with disbursement.</div>
+        </div>
+        <div class="verdict-option reject" onclick="selectVerdict('reject')" id="opt-reject">
+          <div class="verdict-icon">✕</div>
+          <div class="verdict-title">REJECT</div>
+          <div class="verdict-desc">Material misrepresentation found. Deny application.</div>
+        </div>
+      </div>
+      <button class="btn-primary" id="submitVerdictBtn" onclick="submitVerdict()" disabled style="padding: 14px 40px; font-size: 15px;">SUBMIT VERDICT</button>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div id="screen-score" class="screen hidden">
+    <div class="score-screen">
+      <h2>CASE CLOSED</h2>
+      <p class="score-subtitle" id="scoreCaseLabel">Kevin Dela Cruz · Easy</p>
+      <div class="verdict-result" id="verdictResult">CORRECT</div>
+      <div class="score-big" id="scoreBig">0</div>
+      <div class="score-time" id="scoreTime">⏱ 00:00</div>
+      <div class="score-breakdown" id="scoreBreakdown"></div>
+      <div class="score-actions">
+        <button class="btn-secondary" onclick="showScreen('leaderboard')">VIEW LEADERBOARD</button>
+        <button class="btn-primary" onclick="showScreen('home')">BACK TO HOME</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSEQUENCE MODAL -->
+  <div id="consequenceModal" class="consequence-overlay hidden">
+    <div class="consequence-modal">
+      <div class="consequence-header">
+        <div class="consequence-sender">
+          <div class="consequence-av">AV</div>
+          <div>
+            <div style="font-weight:700; font-size:13px;">Ate Vivien Cruz</div>
+            <div style="font-size:10px; opacity:0.8;">Senior Risk Officer</div>
+          </div>
+        </div>
+        <div style="font-size:10px; opacity:0.8;">2 weeks later</div>
+      </div>
+      <div class="consequence-subject">
+        <div class="label">SUBJECT</div>
+        <div class="text" id="consequenceSubject">Follow-up: Kevin Dela Cruz</div>
+      </div>
+      <div class="consequence-body" id="consequenceBody"></div>
+      <div class="consequence-impact">
+        <div class="impact-label">IMPACT REPORT</div>
+        <div class="impact-grid">
+          <div class="impact-card">
+            <div class="lbl">DEFAULT LOSS</div>
+            <div class="val" id="impactLoss">−₱0</div>
+          </div>
+          <div class="impact-card">
+            <div class="lbl">TRUST POINTS</div>
+            <div class="val" id="impactTrust">−0</div>
+          </div>
+          <div class="impact-card">
+            <div class="lbl">LESSON</div>
+            <div class="val" style="font-size:11px;" id="impactLesson">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="consequence-actions">
+        <button class="btn-cancel" onclick="closeConsequence()">Next Case</button>
+        <button class="btn-save" onclick="closeConsequence()">I'll Do Better</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="screen-leaderboard" class="screen hidden">
+    <div class="leaderboard">
+      <h2>🏆 LEADERBOARD</h2>
+      <div class="lb-tabs">
+        <div class="lb-tab active" data-diff="easy" onclick="switchLBTab('easy')">Easy</div>
+        <div class="lb-tab" data-diff="medium" onclick="switchLBTab('medium')">Medium</div>
+        <div class="lb-tab" data-diff="hard" onclick="switchLBTab('hard')">Hard</div>
+        <div class="lb-tab" data-diff="extreme" onclick="switchLBTab('extreme')">Extreme</div>
+      </div>
+      <div class="lb-list" id="lbList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============ GAME DATA ============
+const caseData = {
+  easy: {
+    id: 'easy',
+    applicant: 'Kevin Dela Cruz',
+    difficulty: 'Easy',
+    correctVerdict: 'reject',
+    declared: { age: 21, employer: 'StarBrew Coffee Co.', position: 'Shift Supervisor', tenure: '2 years', income: 28000 },
+    posts: {
+      facebook: [
+        { id: 'fb1', author: 'Kevin Dela Cruz', handle: 'KevinDC', meta: 'March 2 · 🎂 Birthday', content: 'Sweet 17 na ko! Thank you sa mga nag-greet! 🎉🎂 Feeling old na noh?', image: null, likes: 124, comments: 38, classification: 'strong', field: 'age', reason: 'contradiction', points: 15 },
+        { id: 'fb2', author: 'Kevin Dela Cruz', handle: 'KevinDC', meta: 'February 15', content: 'Prom night with the squad! Grade 11 forever 💙', image: 'Prom photo', likes: 89, comments: 15, classification: 'strong', field: 'age', reason: 'contradiction', points: 15 },
+        { id: 'fb3', author: 'Kevin Dela Cruz', handle: 'KevinDC', meta: 'January 8', content: 'New year new me! Hoping to save up enough for a laptop this year 💻', likes: 22, comments: 4, classification: 'neutral', points: 0 }
+      ],
+      instagram: [
+        { id: 'ig1', author: 'kevindc_17', handle: 'kevindc_17', meta: 'February 20', content: 'First shift at StarBrew ☕ Wish me luck!', image: 'Coffee shop photo', likes: 56, comments: 8, classification: 'strong', field: 'tenure', reason: 'contradiction', points: 15 },
+        { id: 'ig2', author: 'kevindc_17', handle: 'kevindc_17', meta: 'January 30', content: 'Graduation pic from Grade 10 🎓 Time flies!', image: 'Graduation photo', likes: 102, comments: 22, classification: 'moderate', field: 'age', reason: 'contradiction', points: 8 },
+        { id: 'ig3', author: 'kevindc_17', handle: 'kevindc_17', meta: 'December 12', content: 'Bought my first anime figure 🎌 Saved up for 3 months!', image: 'Anime figure', likes: 34, comments: 6, classification: 'red-herring', points: -8 }
+      ],
+      linkedin: [
+        { id: 'li1', author: 'Kevin Dela Cruz', handle: 'Shift Supervisor at StarBrew', meta: 'Started February 2026', content: 'Excited to join the StarBrew family! First corporate job 🎉', likes: 18, comments: 5, classification: 'strong', field: 'tenure', reason: 'contradiction', points: 15 },
+        { id: 'li2', author: 'Kevin Dela Cruz', handle: 'Student', meta: 'Education: Senior High School, ongoing', content: 'Proud Grade 11 student at Quezon City Science High School 📚', likes: 43, comments: 12, classification: 'strong', field: 'age', reason: 'contradiction', points: 15 }
+      ],
+      twitter: [
+        { id: 'tw1', author: 'Kevin DC', handle: '@kevindc_17', meta: 'March 10', content: 'Yung feeling na kailangan mo ng laptop para sa online class pero wala kang pera 😭', likes: 12, comments: 3, classification: 'moderate', field: 'purpose', reason: 'other', points: 8 },
+        { id: 'tw2', author: 'Kevin DC', handle: '@kevindc_17', meta: 'February 28', content: 'Di pa ako 18 pero nakapag-loan na ko lol thanks @AlgoPay 😂 joke lang', likes: 8, comments: 4, classification: 'red-herring', points: -8 }
+      ]
+    }
+  }
+};
+
+// ============ STATE ============
+let state = {
+  screen: 'home',
+  currentCase: null,
+  activePlatform: 'facebook',
+  pinnedEvidence: [],
+  activePin: null,
+  currentReason: null,
+  currentField: null,
+  activeVouchers: {},
+  selectedVerdict: null,
+  startTime: null,
+  elapsedSeconds: 0,
+  timerInterval: null,
+  totalScore: 0,
+  casesClosed: 0,
+  leaderboards: loadLeaderboards(),
+  currentLBTab: 'easy'
+};
+
+function loadLeaderboards() {
+  try {
+    const data = localStorage.getItem('algopayLB');
+    return data ? JSON.parse(data) : { easy: [], medium: [], hard: [], extreme: [] };
+  } catch { return { easy: [], medium: [], hard: [], extreme: [] }; }
+}
+
+function saveLeaderboards() {
+  localStorage.setItem('algopayLB', JSON.stringify(state.leaderboards));
+}
+
+// ============ SCREEN CONTROL ============
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('screen-' + name).classList.remove('hidden');
+  state.screen = name;
+  document.getElementById('topNav').style.display = name === 'investigation' ? 'none' : 'flex';
+  if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'home') updateHomeStats();
+}
+
+function updateHomeStats() {
+  document.getElementById('casesClosed').textContent = state.casesClosed;
+  document.getElementById('totalScore').textContent = state.totalScore;
+  let rank = '🔰 Trainee';
+  if (state.totalScore >= 300) rank = '🏆 Chief Risk Officer';
+  else if (state.totalScore >= 200) rank = '⭐ Senior Investigator';
+  else if (state.totalScore >= 120) rank = '🕵️ Field Agent';
+  else if (state.totalScore >= 50) rank = '🔍 Junior Investigator';
+  document.getElementById('currentRank').textContent = rank;
+  const bestEasy = state.leaderboards.easy[0];
+  document.getElementById('best-easy').textContent = bestEasy ? formatTime(bestEasy.time) : '—';
+}
+
+// ============ CASE FLOW ============
+function startCase(diff) {
+  if (diff !== 'easy') { alert("Pending Franco's content!"); return; }
+  state.currentCase = caseData[diff];
+  state.pinnedEvidence = [];
+  state.selectedVerdict = null;
+  state.elapsedSeconds = 0;
+  showScreen('briefing');
+}
+
+function startInvestigation() {
+  showScreen('investigation');
+  state.activePlatform = 'facebook';
+  state.startTime = Date.now();
+  state.timerInterval = setInterval(updateTimer, 1000);
+  renderFeed();
+  updateBadges();
+}
+
+function updateTimer() {
+  state.elapsedSeconds = Math.floor((Date.now() - state.startTime) / 1000);
+  document.getElementById('timer').textContent = formatTime(state.elapsedSeconds);
+}
+
+function formatTime(sec) {
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+function switchPlatform(p) {
+  state.activePlatform = p;
+  document.querySelectorAll('.folder-tab').forEach(t => t.classList.toggle('active', t.dataset.platform === p));
+  renderFeed();
+}
+
+function renderFeed() {
+  const posts = state.currentCase.posts[state.activePlatform] || [];
+  const area = document.getElementById('feedArea');
+  area.innerHTML = posts.map(p => {
+    const pinned = state.pinnedEvidence.find(e => e.postId === p.id);
+    return `<div class="post ${pinned ? 'pinned' : ''}" onclick="handlePostClick('${p.id}')">
+      ${pinned ? '<div class="pin-icon">📌</div>' : ''}
+      <div class="post-header">
+        <div class="post-avatar">${p.author.charAt(0)}</div>
+        <div>
+          <div class="post-author">${p.author}</div>
+          <div class="post-meta">${p.meta}</div>
+        </div>
+      </div>
+      ${p.image ? `<div class="post-image">[${p.image}]</div>` : ''}
+      <div class="post-content">${p.content}</div>
+      <div class="post-engagement">
+        <span>👍 ${p.likes}</span><span>💬 ${p.comments}</span><span>↗ Share</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handlePostClick(postId) {
+  const existing = state.pinnedEvidence.find(e => e.postId === postId);
+  if (existing) {
+    if (confirm('Unpin this evidence?')) {
+      state.pinnedEvidence = state.pinnedEvidence.filter(e => e.postId !== postId);
+      updateBadges(); renderFeed();
+    }
+    return;
+  }
+  openPinPanel(postId);
+}
+
+function openPinPanel(postId) {
+  const post = findPost(postId);
+  state.activePin = postId;
+  state.currentReason = null;
+  state.currentField = null;
+  state.activeVouchers = {};
+  document.getElementById('pinQuote').textContent = '"' + post.content + '"';
+  document.getElementById('pinNote').value = '';
+  document.querySelectorAll('.radio-option').forEach(r => r.classList.remove('selected'));
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.voucher-card').forEach(v => v.classList.remove('active'));
+  document.getElementById('strengthStars').textContent = '—';
+  document.getElementById('pinPanel').classList.remove('hidden');
+}
+
+function closePinPanel() {
+  document.getElementById('pinPanel').classList.add('hidden');
+  state.activePin = null;
+}
+
+function findPost(id) {
+  for (const plat of Object.keys(state.currentCase.posts)) {
+    const p = state.currentCase.posts[plat].find(x => x.id === id);
+    if (p) return p;
+  }
+}
+
+function selectReason(r) {
+  state.currentReason = r;
+  document.querySelectorAll('.radio-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.reason === r);
+  });
+  updateStrength();
+}
+
+function updateStrength() {
+  if (!state.currentReason || !state.currentField) { document.getElementById('strengthStars').textContent = '—'; return; }
+  const post = findPost(state.activePin);
+  let stars = '★';
+  if (post.classification === 'strong') stars = '★★★ STRONG';
+  else if (post.classification === 'moderate') stars = '★★ MODERATE';
+  else if (post.classification === 'weak') stars = '★ WEAK';
+  else stars = '? UNCERTAIN';
+  document.getElementById('strengthStars').textContent = stars;
+}
+
+function toggleVoucher(v) {
+  state.activeVouchers[v] = !state.activeVouchers[v];
+  document.getElementById('voucher' + v.charAt(0).toUpperCase() + v.slice(1)).classList.toggle('active', state.activeVouchers[v]);
+  if (v === 'auto' && state.activeVouchers.auto) {
+    alert('🟡 Auto Checkout active — skipping classification. Click Save Evidence to pin.');
+  }
+}
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.addEventListener('click', () => {
+    state.currentField = c.dataset.field;
+    document.querySelectorAll('.chip').forEach(x => x.classList.remove('selected'));
+    c.classList.add('selected');
+    updateStrength();
+  });
+});
+
+function saveEvidence() {
+  if (!state.activeVouchers.auto) {
+    if (!state.currentReason || !state.currentField) {
+      alert('Please complete Step 1 and Step 2 before saving.');
+      return;
+    }
+  }
+  const post = findPost(state.activePin);
+  const note = document.getElementById('pinNote').value;
+  state.pinnedEvidence.push({
+    postId: post.id, reason: state.currentReason, field: state.currentField, note,
+    vouchers: {...state.activeVouchers},
+    classification: post.classification, points: post.points,
+    correctField: post.field, correctReason: post.reason
+  });
+  closePinPanel(); updateBadges(); renderFeed();
+}
+
+function updateBadges() {
+  const count = state.pinnedEvidence.length;
+  document.getElementById('evidenceBadge').textContent = count;
+  document.getElementById('flagCount').textContent = state.pinnedEvidence.filter(e => {
+    const p = findPost(e.postId); return p && (p.classification === 'strong' || p.classification === 'moderate');
+  }).length;
+  document.getElementById('submitBtn').disabled = count === 0;
+}
+
+function showEvidenceList() {
+  if (state.pinnedEvidence.length === 0) { alert('No evidence pinned yet.'); return; }
+  let list = 'PINNED EVIDENCE:\n\n';
+  state.pinnedEvidence.forEach((e, i) => {
+    const p = findPost(e.postId);
+    list += `${i+1}. "${p.content.substring(0, 60)}..."\n   → ${e.reason || 'auto'} · ${e.field || 'auto'}\n\n`;
+  });
+  alert(list);
+}
+
+function showBriefingModal() {
+  alert('DECLARED INFO:\n\nKevin Dela Cruz, 21\nStarBrew Coffee Co. — Shift Supervisor\n2 years tenure\n₱28,000/month\n₱50,000 loan for laptop\n0 dependents');
+}
+
+function goToVerdict() {
+  clearInterval(state.timerInterval);
+  showScreen('verdict');
+}
+
+function selectVerdict(v) {
+  state.selectedVerdict = v;
+  document.getElementById('opt-approve').classList.toggle('selected', v === 'approve');
+  document.getElementById('opt-reject').classList.toggle('selected', v === 'reject');
+  document.getElementById('submitVerdictBtn').disabled = false;
+}
+
+function submitVerdict() {
+  if (!confirm('Submit your verdict? This cannot be undone.')) return;
+  calculateAndShowScore();
+}
+
+// ============ SCORING ============
+function calculateAndShowScore() {
+  const correctVerdict = state.currentCase.correctVerdict;
+  const isCorrect = state.selectedVerdict === correctVerdict;
+
+  let evidenceScore = 0, classAccuracy = 0, fieldAccuracy = 0;
+  state.pinnedEvidence.forEach(e => {
+    const post = findPost(e.postId);
+    let pts = post.points;
+    if (pts < 0 && e.vouchers.auto) pts = 0;
+    evidenceScore += pts;
+    if (e.reason === post.reason) classAccuracy += 3;
+    if (e.field === post.field) fieldAccuracy += 5;
+  });
+
+  const verdictScore = isCorrect ? 30 : -10;
+  const totalPost = evidenceScore + classAccuracy + fieldAccuracy + verdictScore;
+  const finalScore = Math.max(0, totalPost);
+
+  state.totalScore += finalScore;
+  state.casesClosed++;
+
+  // Save to leaderboard
+  const playerName = prompt('Enter your name for the leaderboard:', 'Player') || 'Anonymous';
+  state.leaderboards[state.currentCase.id].push({
+    name: playerName.substring(0, 20), score: finalScore, time: state.elapsedSeconds, date: new Date().toLocaleDateString()
+  });
+  state.leaderboards[state.currentCase.id].sort((a,b) => b.score - a.score || a.time - b.time);
+  state.leaderboards[state.currentCase.id] = state.leaderboards[state.currentCase.id].slice(0, 10);
+  saveLeaderboards();
+
+  // Show score screen
+  document.getElementById('scoreCaseLabel').textContent = `${state.currentCase.applicant} · ${state.currentCase.difficulty}`;
+  const result = document.getElementById('verdictResult');
+  result.textContent = isCorrect ? '✓ CORRECT VERDICT' : '✕ WRONG VERDICT';
+  result.className = 'verdict-result ' + (isCorrect ? 'correct' : 'wrong');
+  document.getElementById('scoreBig').textContent = finalScore + ' PTS';
+  document.getElementById('scoreTime').textContent = '⏱ ' + formatTime(state.elapsedSeconds);
+
+  document.getElementById('scoreBreakdown').innerHTML = `
+    <div class="score-row"><span>Evidence pinned (${state.pinnedEvidence.length})</span><span>${evidenceScore > 0 ? '+' : ''}${evidenceScore}</span></div>
+    <div class="score-row"><span>Classification accuracy</span><span>+${classAccuracy}</span></div>
+    <div class="score-row"><span>Field targeting</span><span>+${fieldAccuracy}</span></div>
+    <div class="score-row"><span>Verdict: ${isCorrect ? 'IDEAL' : 'WRONG'}</span><span>${verdictScore > 0 ? '+' : ''}${verdictScore}</span></div>
+    <div class="score-row"><span>TOTAL</span><span>${finalScore} pts</span></div>
+  `;
+
+  showScreen('score');
+
+  if (!isCorrect) setTimeout(showConsequence, 1500);
+}
+
+function showConsequence() {
+  const wrong = state.selectedVerdict === 'approve';
+  if (wrong) {
+    document.getElementById('consequenceSubject').textContent = 'Follow-up: Kevin Dela Cruz defaulted';
+    document.getElementById('consequenceBody').innerHTML = `
+      <p>Remember si Kevin, yung 21-year-old daw na Shift Supervisor sa StarBrew?</p>
+      <p>Turns out <strong>17 years old pala siya</strong> — Grade 11 student pa. Nag-apply lang siya ng trabaho nung February, hindi 2 years. Ginamit niya yung ₱50,000 sa gaming setup — hindi laptop. Missed his first payment.</p>
+      <div class="consequence-quote">"Yung birthday post niya sa Facebook, naka-display yung age niya (17). Dapat mag-check tayo ng age consistency across platforms. Next time mag-ingat tayo ha." — Ate Vivien</div>
+      <p>Tuloy lang. Nangyayari yan.</p>
+    `;
+    document.getElementById('impactLoss').textContent = '−₱50,000';
+    document.getElementById('impactTrust').textContent = '−5';
+    document.getElementById('impactLesson').textContent = 'Check age across all platforms';
+  } else {
+    document.getElementById('consequenceSubject').textContent = 'Update: Kevin followed up';
+    document.getElementById('consequenceBody').innerHTML = `
+      <p>Si Kevin nag-follow up last week. Actually okay naman pala yung kaso niya — may mga discrepancies pero age fraud talaga ang issue.</p>
+      <div class="consequence-quote">"Mukhang bata siya talaga. Rejecting was the right call." — Ate Vivien</div>
+    `;
+    document.getElementById('impactLoss').textContent = '₱0';
+    document.getElementById('impactTrust').textContent = '+3';
+    document.getElementById('impactLesson').textContent = 'Good catch!';
+  }
+  document.getElementById('consequenceModal').classList.remove('hidden');
+}
+
+function closeConsequence() {
+  document.getElementById('consequenceModal').classList.add('hidden');
+}
+
+// ============ LEADERBOARD ============
+function switchLBTab(d) {
+  state.currentLBTab = d;
+  document.querySelectorAll('.lb-tab').forEach(t => t.classList.toggle('active', t.dataset.diff === d));
+  renderLeaderboard();
+}
+
+function renderLeaderboard() {
+  const list = state.leaderboards[state.currentLBTab] || [];
+  const el = document.getElementById('lbList');
+  if (list.length === 0) {
+    el.innerHTML = '<div class="lb-empty">No scores yet. Be the first!</div>';
+    return;
+  }
+  el.innerHTML = `<div class="lb-row header"><span>RANK</span><span>NAME</span><span>TIME</span><span>SCORE</span></div>` +
+    list.map((row, i) => `<div class="lb-row">
+      <span class="lb-rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i+1)}</span>
+      <span>${row.name}</span>
+      <span>${formatTime(row.time)}</span>
+      <span style="font-weight:700; color:#A52424;">${row.score} pts</span>
+    </div>`).join('');
+}
+
+// ============ INIT ============
+updateHomeStats();
+</script>
+</body>
+</html>

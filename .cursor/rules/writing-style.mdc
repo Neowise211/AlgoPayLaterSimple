@@ -1,0 +1,44 @@
+---
+description: Documentation tone, file naming, prompt-writing conventions
+globs: ["docs/**", "*.md"]
+alwaysApply: false
+---
+
+# Rule: writing-style
+
+## Filenames
+
+All filenames: lowercase, kebab-case.
+- ✅ `case-content-template.md`, `prompt-plan.md`
+- ❌ `CaseContentTemplate.md`, `Prompt_Plan.md`
+
+## Heading hierarchy
+
+- Every doc begins with exactly one `# Title` heading
+- Sub-sections use `##`; sub-sub-sections use `###`
+- Never skip heading levels
+
+## Tone
+
+- Plain, direct English. Avoid marketing words ("seamlessly", "powerful", "robust")
+- Second-person ("you") for instructions
+- Present tense for descriptions; future tense only for unbuilt features
+
+## Game terminology in docs
+
+Capitalize these proper nouns exactly as shown:
+
+| Term | Meaning |
+|---|---|
+| `Applicant` | Subject of a case |
+| `FeedPost` | A single social media post |
+| `VerdictStamp` | The approval/rejection mechanic |
+| `Case` | One complete investigable unit |
+| `Clue` | A tagged discrepancy |
+
+## Prompts and task descriptions
+
+- State the deliverable in the first sentence
+- List constraints before listing steps
+- Cite specific filenames (`scripts/state.js`) not vague references ("the state file")
+- Number steps if order matters

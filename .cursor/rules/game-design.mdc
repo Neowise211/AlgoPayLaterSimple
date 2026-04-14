@@ -1,0 +1,47 @@
+---
+description: Game design guardrails — verdict mechanics, case structure, tone
+globs: ["scripts/cases.js", "scripts/scoring.js", "scripts/router.js"]
+alwaysApply: false
+---
+
+# Rule: game-design
+
+These guardrails ensure any code change stays coherent with the established game vision.
+
+## Core pillars (non-negotiable)
+
+1. **Detective tone.** The player is an investigator, not a bank teller. UI should feel like evidence gathering, not form-filling.
+2. **Binary verdict.** Every case resolves to APPROVE or REJECT. No "maybe", "defer", "escalate", "monitor" verdicts.
+3. **Tension through contradiction.** Cases are interesting only when declared data conflicts with FeedPost evidence.
+4. **No moral lecturing.** Wrong verdicts trigger consequences (Ate Vivien email), not gold stars or scoldings.
+
+## Prohibited design directions
+
+- Adding a third or fourth verdict option
+- Cartoon/emoji reactions on the verdict outcome
+- Multiplayer or live social comparison features
+- Cases with one obvious "right" answer (every case must require evidence triangulation)
+- Punishing the player with negative score that goes below zero
+
+## Case structure consistency check
+
+When adding or modifying a case, verify:
+
+- [ ] Has a clear correct verdict (approve or reject)
+- [ ] Has at least 2 corroborating clues that justify the correct verdict
+- [ ] Has at least 1 deliberate red herring (innocent post that looks suspicious)
+- [ ] Includes both `wrongApprove` and `wrongReject` consequence stories
+- [ ] Briefing quote uses Ate Vivien's voice (Taglish, professional, warm)
+
+## Scoring engine constraints
+
+- Final score is `Math.max(0, calculation)` — never negative
+- Voucher effects only modify scoring outputs, never reveal correctness mid-game
+- All voucher logic lives in scoring.js — never in router.js or UI files
+
+## Tone for player-facing copy
+
+- Filipino cultural context welcome (Taglish, "ate", "kuya", etc.)
+- Never mock the applicant — even fraudsters have human stories
+- Always end consequence emails with forward-looking encouragement ("tuloy lang", "next time")
+- Avoid English-only formal corporate-speak unless writing a UI label
