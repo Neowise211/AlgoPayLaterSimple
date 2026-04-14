@@ -11,7 +11,8 @@ const state = {
   timerInterval: null,
   sessionScore: 0,
   casesClosed: 0,
-  leaderboards: { easy: [], medium: [], hard: [], extreme: [] }
+  leaderboards: { easy: [], medium: [], hard: [], extreme: [] },
+  currentLBTab: "easy"
 };
 
 function loadLeaderboards() {

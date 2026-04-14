@@ -232,7 +232,7 @@ function renderInvestigation() {
           <button class="btn-secondary evidence-btn">
             📌 Evidence <span class="evidence-badge" id="evidenceBadge">0</span>
           </button>
-          <button class="btn-primary" id="submitBtn" disabled>SUBMIT VERDICT →</button>
+          <button class="btn-primary" id="submitBtn" onclick="goToVerdict()" disabled>SUBMIT VERDICT →</button>
         </div>
       </div>
 
@@ -265,9 +265,239 @@ function renderInvestigation() {
   updateBadges();
 }
 
-function renderVerdict() {}
-function renderScore() {}
-function renderLeaderboard() {}
+function goToVerdict() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+  showScreen("verdict");
+}
+
+function renderVerdict() {
+  const verdictScreen = document.getElementById("screen-verdict");
+  if (!verdictScreen) return;
+
+  const applicantName =
+    state.currentCase && state.currentCase.applicant && state.currentCase.applicant.name
+      ? state.currentCase.applicant.name
+      : "Applicant";
+  const approveSelected = state.selectedVerdict === "approve";
+  const rejectSelected = state.selectedVerdict === "reject";
+
+  verdictScreen.innerHTML = `
+    <div class="verdict">
+      <h2>YOUR VERDICT</h2>
+      <p class="verdict-intro">Based on your investigation, what's your recommendation for ${applicantName}?</p>
+
+      <div class="verdict-options">
+        <div class="verdict-option approve ${approveSelected ? "selected" : ""}" id="verdictApproveCard" onclick="selectVerdict('approve')">
+          <div class="verdict-icon">✓</div>
+          <div class="verdict-title">APPROVE</div>
+          <div class="verdict-desc">Application is clean. Proceed with disbursement.</div>
+        </div>
+
+        <div class="verdict-option reject ${rejectSelected ? "selected" : ""}" id="verdictRejectCard" onclick="selectVerdict('reject')">
+          <div class="verdict-icon">✕</div>
+          <div class="verdict-title">REJECT</div>
+          <div class="verdict-desc">Material misrepresentation found. Deny application.</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="submitVerdictBtn" onclick="submitVerdict()" ${
+        state.selectedVerdict ? "" : "disabled"
+      }>
+        SUBMIT VERDICT
+      </button>
+    </div>
+  `;
+}
+
+function selectVerdict(verdict) {
+  state.selectedVerdict = verdict;
+
+  const approveCard = document.getElementById("verdictApproveCard");
+  const rejectCard = document.getElementById("verdictRejectCard");
+  const submitVerdictBtn = document.getElementById("submitVerdictBtn");
+
+  if (approveCard) {
+    approveCard.classList.toggle("selected", verdict === "approve");
+  }
+  if (rejectCard) {
+    rejectCard.classList.toggle("selected", verdict === "reject");
+  }
+  if (submitVerdictBtn) {
+    submitVerdictBtn.disabled = !state.selectedVerdict;
+  }
+}
+
+function submitVerdict() {
+  if (!state.selectedVerdict) return;
+  const confirmed = confirm("Submit your verdict? This cannot be undone.");
+  if (!confirmed) return;
+
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+
+  calculateAndShowScore();
+}
+
+function calculateAndShowScore() {
+  if (!state.currentCase) return;
+
+  const breakdown = window.calculateFinalScore(
+    state.currentCase,
+    state.pinnedEvidence,
+    state.selectedVerdict
+  );
+  const isCorrect = state.selectedVerdict === state.currentCase.correctVerdict;
+
+  state.sessionScore += breakdown.total;
+  state.casesClosed += 1;
+
+  const rawName = prompt("Enter your name for the leaderboard:", "Player");
+  const cleanedName = typeof rawName === "string" ? rawName.trim() : "";
+  const playerName = (cleanedName || "Player").slice(0, 20);
+
+  window.addLeaderboardEntry(
+    state.currentCase.id,
+    playerName,
+    breakdown.total,
+    state.elapsedSeconds
+  );
+
+  state.latestScoreBreakdown = breakdown;
+  state.latestVerdictCorrect = isCorrect;
+
+  renderScore(breakdown, isCorrect);
+  showScreen("score");
+
+  if (!isCorrect) {
+    setTimeout(showConsequence, 1500);
+  }
+}
+
+function renderScore(breakdown, isCorrect) {
+  const scoreScreen = document.getElementById("screen-score");
+  if (!scoreScreen) return;
+
+  const resolvedBreakdown = breakdown || state.latestScoreBreakdown;
+  const resolvedIsCorrect =
+    typeof isCorrect === "boolean" ? isCorrect : Boolean(state.latestVerdictCorrect);
+
+  if (!resolvedBreakdown || !state.currentCase || !state.currentCase.applicant) {
+    scoreScreen.innerHTML = `
+      <div class="score-screen">
+        <h2>CASE CLOSED</h2>
+        <p class="score-subtitle">No score available yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const applicantName = state.currentCase.applicant.name || "Applicant";
+  const difficulty = state.currentCase.difficulty || "";
+  const evidenceCount = state.pinnedEvidence.length;
+  const verdictStateLabel = resolvedIsCorrect ? "IDEAL" : "WRONG";
+  const verdictPillText = resolvedIsCorrect ? "✓ CORRECT VERDICT" : "✕ WRONG VERDICT";
+  const verdictPillClass = resolvedIsCorrect ? "correct" : "wrong";
+
+  function formatSigned(value) {
+    const numeric = Number(value) || 0;
+    return numeric > 0 ? "+" + numeric : String(numeric);
+  }
+
+  scoreScreen.innerHTML = `
+    <div class="score-screen">
+      <h2>CASE CLOSED</h2>
+      <p class="score-subtitle">${applicantName} · ${difficulty}</p>
+      <div class="verdict-result ${verdictPillClass}">${verdictPillText}</div>
+      <div class="score-big">${resolvedBreakdown.total} PTS</div>
+      <div class="score-time">⏱ ${formatTime(state.elapsedSeconds)}</div>
+
+      <div class="score-breakdown">
+        <div class="score-row"><span>Evidence pinned (${evidenceCount})</span><span>${formatSigned(
+          resolvedBreakdown.evidencePoints
+        )}</span></div>
+        <div class="score-row"><span>Classification accuracy</span><span>${formatSigned(
+          resolvedBreakdown.classificationBonus
+        )}</span></div>
+        <div class="score-row"><span>Field targeting</span><span>${formatSigned(
+          resolvedBreakdown.fieldBonus
+        )}</span></div>
+        <div class="score-row"><span>Verdict: ${verdictStateLabel}</span><span>${formatSigned(
+          resolvedBreakdown.verdictPoints
+        )}</span></div>
+        <div class="score-row"><span>TOTAL</span><span>${resolvedBreakdown.total} pts</span></div>
+      </div>
+
+      <div class="score-actions">
+        <button class="btn-secondary" onclick="showScreen('leaderboard')">VIEW LEADERBOARD</button>
+        <button class="btn-primary" onclick="showScreen('home')">BACK TO HOME</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderLeaderboard() {
+  const leaderboardScreen = document.getElementById("screen-leaderboard");
+  if (!leaderboardScreen) return;
+
+  const activeDiff = state.currentLBTab || "easy";
+  const entries = (state.leaderboards && state.leaderboards[activeDiff]
+    ? state.leaderboards[activeDiff]
+    : []
+  ).slice(0, 10);
+
+  function rankLabel(index) {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return "#" + (index + 1);
+  }
+
+  const listMarkup = entries.length
+    ? `
+      <div class="lb-row header">
+        <span class="lb-rank">RANK</span>
+        <span>NAME</span>
+        <span>TIME</span>
+        <span>SCORE</span>
+      </div>
+      ${entries
+        .map(function renderEntry(entry, index) {
+          return `
+            <div class="lb-row">
+              <span class="lb-rank">${rankLabel(index)}</span>
+              <span>${entry.name || "Player"}</span>
+              <span>${formatTime(entry.time)}</span>
+              <span class="lb-score">${Number(entry.score) || 0} pts</span>
+            </div>
+          `;
+        })
+        .join("")}
+    `
+    : '<div class="lb-empty">No scores yet. Be the first!</div>';
+
+  leaderboardScreen.innerHTML = `
+    <div class="leaderboard">
+      <h2>🏆 LEADERBOARD</h2>
+      <div class="lb-tabs">
+        <button class="lb-tab ${activeDiff === "easy" ? "active" : ""}" onclick="switchLBTab('easy')">Easy</button>
+        <button class="lb-tab ${activeDiff === "medium" ? "active" : ""}" onclick="switchLBTab('medium')">Medium</button>
+        <button class="lb-tab ${activeDiff === "hard" ? "active" : ""}" onclick="switchLBTab('hard')">Hard</button>
+        <button class="lb-tab ${activeDiff === "extreme" ? "active" : ""}" onclick="switchLBTab('extreme')">Extreme</button>
+      </div>
+      <div class="lb-list">
+        ${listMarkup}
+      </div>
+      <div class="score-actions">
+        <button class="btn-primary" onclick="showScreen('home')">BACK TO HOME</button>
+      </div>
+    </div>
+  `;
+}
 
 function startCase(diff) {
   state.currentCase = CASES[diff];
@@ -306,7 +536,21 @@ function switchPlatform(platformName) {
     tab.classList.toggle("active", tab.dataset.platform === platformName);
   });
 
-  renderFeed();
+  const feedArea = document.getElementById("feedArea");
+  if (!feedArea) {
+    renderFeed();
+    return;
+  }
+
+  feedArea.classList.add("feed-fade-out");
+  setTimeout(function swapFeed() {
+    renderFeed();
+    feedArea.classList.remove("feed-fade-out");
+    feedArea.classList.add("feed-fade-in");
+    setTimeout(function clearFeedFadeIn() {
+      feedArea.classList.remove("feed-fade-in");
+    }, 200);
+  }, 120);
 }
 
 function renderFeed() {
@@ -409,6 +653,94 @@ function showBriefingModal() {
   );
 }
 
+function showConsequence() {
+  if (!state.currentCase || !state.currentCase.consequences) return;
+
+  const branch =
+    state.selectedVerdict === "approve"
+      ? state.currentCase.consequences.wrongApprove
+      : state.currentCase.consequences.wrongReject;
+  if (!branch) return;
+
+  let consequenceModal = document.getElementById("consequenceModal");
+  if (!consequenceModal) {
+    consequenceModal = document.createElement("div");
+    consequenceModal.id = "consequenceModal";
+    document.body.appendChild(consequenceModal);
+  }
+
+  const trustValue = Number(branch.impact && branch.impact.trust) || 0;
+  const trustText = trustValue > 0 ? "+" + trustValue : String(trustValue);
+  const lossValue = Number(branch.impact && branch.impact.loss) || 0;
+
+  consequenceModal.className = "consequence-overlay";
+  consequenceModal.style.display = "flex";
+  consequenceModal.innerHTML = `
+    <div class="consequence-modal">
+      <div class="consequence-header">
+        <div class="consequence-sender">
+          <div class="consequence-av">AV</div>
+          <div class="consequence-sender-meta">
+            <div class="consequence-sender-name">Ate Vivien Cruz</div>
+            <div class="consequence-sender-role">Senior Risk Officer</div>
+          </div>
+        </div>
+        <div class="consequence-time">2 weeks later</div>
+      </div>
+
+      <div class="consequence-subject">
+        <div class="label">SUBJECT</div>
+        <div class="text">${branch.subject}</div>
+      </div>
+
+      <div class="consequence-body">
+        <p>${branch.body}</p>
+        <div class="consequence-quote">${branch.pullquote}</div>
+      </div>
+
+      <div class="consequence-impact">
+        <div class="impact-label">IMPACT REPORT</div>
+        <div class="impact-grid">
+          <div class="impact-card">
+            <div class="lbl">DEFAULT LOSS</div>
+            <div class="val">${formatCurrency(lossValue)}</div>
+          </div>
+          <div class="impact-card">
+            <div class="lbl">TRUST POINTS</div>
+            <div class="val">${trustText}</div>
+          </div>
+          <div class="impact-card">
+            <div class="lbl">LESSON</div>
+            <div class="val val-lesson">${branch.impact && branch.impact.lesson ? branch.impact.lesson : "—"}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consequence-actions">
+        <button class="btn-cancel" onclick="closeConsequence()">Next Case</button>
+        <button class="btn-save" onclick="closeConsequence()">I'll Do Better</button>
+      </div>
+    </div>
+  `;
+}
+
+function closeConsequence() {
+  const consequenceModal = document.getElementById("consequenceModal");
+  if (!consequenceModal) return;
+  consequenceModal.style.display = "none";
+}
+
+function closePinPanel() {
+  const pinPanel = document.getElementById("pinPanel");
+  if (!pinPanel) return;
+  pinPanel.classList.add("hidden");
+}
+
+function switchLBTab(diff) {
+  state.currentLBTab = diff;
+  renderLeaderboard();
+}
+
 window.showScreen = showScreen;
 window.startCase = startCase;
 window.startInvestigation = startInvestigation;
@@ -419,3 +751,14 @@ window.renderFeed = renderFeed;
 window.handlePostClick = handlePostClick;
 window.updateBadges = updateBadges;
 window.showBriefingModal = showBriefingModal;
+window.goToVerdict = goToVerdict;
+window.renderVerdict = renderVerdict;
+window.selectVerdict = selectVerdict;
+window.submitVerdict = submitVerdict;
+window.calculateAndShowScore = calculateAndShowScore;
+window.renderScore = renderScore;
+window.showConsequence = showConsequence;
+window.closeConsequence = closeConsequence;
+window.closePinPanel = closePinPanel;
+window.switchLBTab = switchLBTab;
+window.renderLeaderboard = renderLeaderboard;
