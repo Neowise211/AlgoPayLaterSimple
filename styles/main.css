@@ -13,8 +13,9 @@ button {
 }
 
 .logo {
-  font-size: 22px;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  line-height: 0;
 }
 
 .logo .red {
@@ -23,6 +24,13 @@ button {
 
 .logo .gold {
   color: var(--brand-color-gold);
+}
+
+.logo-mark {
+  display: block;
+  height: calc(var(--brand-space-xl) + var(--brand-space-sm));
+  width: auto;
+  max-width: 100%;
 }
 
 .top-actions {
@@ -35,7 +43,7 @@ button {
 }
 
 .top-actions .logo {
-  font-size: 20px;
+  flex-shrink: 0;
 }
 
 .nav-links {

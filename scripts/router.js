@@ -69,7 +69,9 @@ function renderHome() {
 
   homeScreen.innerHTML = `
     <div class="top-actions">
-      <div class="logo"><span class="red">Algo₱</span><span class="gold">Pay</span></div>
+      <div class="logo">
+        <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
+      </div>
       <div class="nav-links">
         <button class="nav-link" onclick="showScreen('home')">Home</button>
         <button class="nav-link" onclick="showScreen('leaderboard')">Leaderboard</button>
@@ -106,7 +108,9 @@ function renderDifficulty() {
 
   difficultyScreen.innerHTML = `
     <div class="top-actions">
-      <div class="logo"><span class="red">Algo₱</span><span class="gold">Pay</span></div>
+      <div class="logo">
+        <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
+      </div>
       <div class="nav-links">
         <button class="nav-link" onclick="showScreen('home')">Home</button>
         <button class="nav-link" onclick="showScreen('leaderboard')">Leaderboard</button>
@@ -219,7 +223,9 @@ function renderInvestigation() {
   investigationScreen.innerHTML = `
     <div class="investigation">
       <div class="inv-topbar">
-        <div class="logo"><span class="red">Algo₱</span><span class="gold">Pay</span></div>
+        <div class="logo">
+          <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
+        </div>
         <div class="inv-topbar-right">
           <div class="timer-display" id="timer">${formatTime(state.elapsedSeconds)}</div>
           <button class="btn-secondary" onclick="showBriefingModal()">View Application</button>
