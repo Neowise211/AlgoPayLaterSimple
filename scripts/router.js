@@ -121,30 +121,31 @@ function renderDifficulty() {
       <h2>SELECT DIFFICULTY</h2>
       <div class="diff-grid">
         <div class="diff-card easy" onclick="startCase('easy')">
+          <img class="diff-card-avatar" src="assets/avatar-easy.png" alt="Applicant photo">
           <span class="diff-badge">EASY</span>
           <h3>Underage Applicant</h3>
           <p class="case-desc">A young applicant requesting a personal loan. Something does not add up.</p>
           <div class="best-time">Best: ${getBestTime("easy")}</div>
         </div>
 
-        <div class="diff-card medium" onclick="alert('Pending Franco\\'s content')">
-          <span class="coming-soon">TBD</span>
+        <div class="diff-card medium" onclick="startCase('medium')">
+          <img class="diff-card-avatar" src="assets/avatar-medium.png" alt="Applicant photo">
           <span class="diff-badge">MEDIUM</span>
           <h3>Pesto Case</h3>
           <p class="case-desc">Small business loan for a food venture. Real operation or staged profile?</p>
           <div class="best-time">Best: ${getBestTime("medium")}</div>
         </div>
 
-        <div class="diff-card hard" onclick="alert('Pending Franco\\'s content')">
-          <span class="coming-soon">TBD</span>
+        <div class="diff-card hard" onclick="startCase('hard')">
+          <img class="diff-card-avatar" src="assets/avatar-hard.png" alt="Applicant photo">
           <span class="diff-badge">HARD</span>
           <h3>Wi-Fi Thief</h3>
           <p class="case-desc">Neighborhood complaints clash with polished social presence.</p>
           <div class="best-time">Best: ${getBestTime("hard")}</div>
         </div>
 
-        <div class="diff-card extreme" onclick="alert('Pending Franco\\'s content')">
-          <span class="coming-soon">TBD</span>
+        <div class="diff-card extreme" onclick="startCase('extreme')">
+          <img class="diff-card-avatar" src="assets/avatar-extreme.png" alt="Applicant photo">
           <span class="diff-badge">EXTREME</span>
           <h3>HUAC Case</h3>
           <p class="case-desc">Everything points one way. The truth may still be more complex.</p>
@@ -629,28 +630,84 @@ function updateBadges() {
 
 function showBriefingModal() {
   if (!state.currentCase || !state.currentCase.applicant) return;
-  const a = state.currentCase.applicant;
-  alert(
-    "DECLARED INFO:\n\n" +
-      a.name +
-      ", " +
-      a.age +
-      "\n" +
-      a.employer +
-      " — " +
-      a.position +
-      "\n" +
-      a.tenure +
-      " tenure\n" +
-      formatCurrency(a.income) +
-      "/month\n" +
-      formatCurrency(a.loanAmount) +
-      " loan for " +
-      a.loanPurpose +
-      "\n" +
-      a.dependents +
-      " dependents"
-  );
+  var a = state.currentCase.applicant;
+  var initial = (a.name || "?").charAt(0).toUpperCase();
+
+  var modal = document.getElementById("briefingModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "briefingModal";
+    document.body.appendChild(modal);
+  }
+
+  modal.className = "briefing-folder-overlay";
+  modal.innerHTML = `
+    <div class="briefing-folder">
+      <div class="folder-front">
+        <div class="briefing-folder-tab"></div>
+        <div class="folder-clip">📎</div>
+        <div class="folder-lines"></div>
+      </div>
+      <div class="folder-interior">
+        <div class="folder-content">
+          <div class="folder-dossier-header">
+            <div class="folder-avatar">${initial}</div>
+            <div>
+              <div class="folder-dossier-name">${a.name}</div>
+              <div class="folder-dossier-sub">Age ${a.age} · ${a.civilStatus} · ${a.address}</div>
+            </div>
+          </div>
+          <div class="folder-dossier-fields">
+            <div class="folder-dossier-field"><div class="label">EMPLOYER</div><div class="value">${a.employer}</div></div>
+            <div class="folder-dossier-field"><div class="label">POSITION</div><div class="value">${a.position}</div></div>
+            <div class="folder-dossier-field"><div class="label">TENURE</div><div class="value">${a.tenure}</div></div>
+            <div class="folder-dossier-field"><div class="label">MONTHLY INCOME</div><div class="value">${formatCurrency(a.income)}</div></div>
+            <div class="folder-dossier-field"><div class="label">LOAN AMOUNT</div><div class="value">${formatCurrency(a.loanAmount)}</div></div>
+            <div class="folder-dossier-field"><div class="label">LOAN PURPOSE</div><div class="value">${a.loanPurpose}</div></div>
+            <div class="folder-dossier-field"><div class="label">DEPENDENTS</div><div class="value">${a.dependents}</div></div>
+            <div class="folder-dossier-field"><div class="label">ADDRESS</div><div class="value">${a.address}</div></div>
+          </div>
+          <button class="btn-primary folder-close-btn" onclick="closeBriefingModal()">CLOSE FILE</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+
+  requestAnimationFrame(function startPhase1() {
+    modal.classList.add("folder-visible");
+
+    setTimeout(function startPhase2() {
+      modal.classList.add("folder-open");
+    }, 400);
+
+    setTimeout(function startPhase3() {
+      modal.classList.add("folder-content-visible");
+    }, 900);
+  });
+
+  modal.addEventListener("click", function onBackdropClick(event) {
+    if (event.target === modal) {
+      closeBriefingModal();
+    }
+  });
+}
+
+function closeBriefingModal() {
+  var modal = document.getElementById("briefingModal");
+  if (!modal) return;
+
+  modal.classList.remove("folder-content-visible");
+  modal.classList.remove("folder-open");
+
+  setTimeout(function fadeOut() {
+    modal.classList.remove("folder-visible");
+  }, 200);
+
+  setTimeout(function hideModal() {
+    modal.style.display = "none";
+  }, 600);
 }
 
 function showConsequence() {
@@ -751,6 +808,7 @@ window.renderFeed = renderFeed;
 window.handlePostClick = handlePostClick;
 window.updateBadges = updateBadges;
 window.showBriefingModal = showBriefingModal;
+window.closeBriefingModal = closeBriefingModal;
 window.goToVerdict = goToVerdict;
 window.renderVerdict = renderVerdict;
 window.selectVerdict = selectVerdict;

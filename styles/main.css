@@ -214,6 +214,18 @@ button:hover {
   box-shadow: var(--brand-shadow-card-hover);
 }
 
+.diff-card-avatar {
+  display: block;
+  width: var(--brand-space-72);
+  height: var(--brand-space-72);
+  border-radius: var(--brand-radius-circle);
+  object-fit: cover;
+  border: 3px solid var(--brand-color-surface);
+  margin: 0 auto var(--brand-space-12);
+  box-shadow: var(--brand-shadow-sm);
+  background: var(--brand-color-avatar);
+}
+
 .diff-card.easy {
   border-top: 4px solid var(--brand-color-success);
 }
@@ -1085,4 +1097,184 @@ button:hover {
   text-align: center;
   color: var(--brand-color-ink-muted);
   font-style: italic;
+}
+
+/* ── Briefing Folder Modal ── */
+
+.briefing-folder-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-color-overlay);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.briefing-folder-overlay.folder-visible {
+  opacity: 1;
+}
+
+.briefing-folder {
+  position: relative;
+  width: 480px;
+  height: 380px;
+  perspective: 800px;
+  transform: scale(0.8);
+  transition: transform 0.4s ease-out;
+}
+
+.folder-visible .briefing-folder {
+  transform: scale(1);
+}
+
+/* Front cover — hinges open from left edge */
+.folder-front {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--brand-color-gold), var(--brand-color-gold-dark));
+  border-radius: var(--brand-radius-md);
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  transition: transform 0.5s ease-in-out;
+  z-index: 2;
+  backface-visibility: hidden;
+  box-shadow: var(--brand-shadow-lg);
+  overflow: hidden;
+}
+
+.folder-open .folder-front {
+  transform: rotateY(-160deg);
+}
+
+/* Tab ear at top-right of cover */
+.briefing-folder-tab {
+  position: absolute;
+  top: calc(-1 * var(--brand-space-12));
+  right: var(--brand-space-xl);
+  width: var(--brand-space-72);
+  height: var(--brand-space-lg);
+  background: var(--brand-color-gold-dark);
+  border-radius: var(--brand-radius-md) var(--brand-radius-md) 0 0;
+}
+
+/* Ruled lines on the cover */
+.folder-lines {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--brand-radius-md);
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 28px,
+    var(--brand-color-overlay-paper) 28px,
+    var(--brand-color-overlay-paper) 29px
+  );
+  pointer-events: none;
+}
+
+/* Paperclip decoration */
+.folder-clip {
+  position: absolute;
+  top: var(--brand-space-sm);
+  left: 50%;
+  transform: translateX(-50%) rotate(12deg);
+  font-size: var(--brand-space-28);
+  z-index: 3;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Interior page revealed behind the cover */
+.folder-interior {
+  position: absolute;
+  inset: 0;
+  background: var(--brand-color-surface);
+  border-radius: var(--brand-radius-md);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  overflow-y: auto;
+}
+
+.folder-open .folder-interior {
+  opacity: 1;
+}
+
+/* Content inside the folder (fades in after open) */
+.folder-content {
+  padding: var(--brand-space-lg);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.folder-content-visible .folder-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Dossier header inside folder */
+.folder-dossier-header {
+  display: flex;
+  align-items: center;
+  gap: var(--brand-space-md);
+  margin-bottom: var(--brand-space-lg);
+  padding-bottom: var(--brand-space-md);
+  border-bottom: var(--brand-space-1) solid var(--brand-color-border-muted);
+}
+
+.folder-avatar {
+  width: var(--brand-space-48);
+  height: var(--brand-space-48);
+  border-radius: var(--brand-radius-circle);
+  background: linear-gradient(135deg, var(--brand-color-gold), var(--brand-color-gold-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--brand-space-20);
+  font-weight: 700;
+  color: var(--brand-color-ink);
+  flex-shrink: 0;
+}
+
+.folder-dossier-name {
+  font-size: var(--brand-space-18);
+  font-weight: 700;
+  color: var(--brand-color-ink);
+}
+
+.folder-dossier-sub {
+  font-size: var(--brand-space-13);
+  color: var(--brand-color-ink-muted);
+  margin-top: var(--brand-space-xxs);
+}
+
+/* 2-column dossier field grid */
+.folder-dossier-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--brand-space-md);
+  margin-bottom: var(--brand-space-lg);
+}
+
+.folder-dossier-field .label {
+  font-size: var(--brand-space-10);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brand-color-ink-muted);
+  margin-bottom: var(--brand-space-xxs);
+}
+
+.folder-dossier-field .value {
+  font-size: var(--brand-space-14);
+  font-weight: 600;
+  color: var(--brand-color-ink);
+}
+
+/* Close button centered at bottom */
+.folder-close-btn {
+  display: block;
+  margin: var(--brand-space-lg) auto 0;
 }
