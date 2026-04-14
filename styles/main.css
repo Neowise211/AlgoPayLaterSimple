@@ -839,16 +839,12 @@ button:focus-visible {
 }
 
 .post-image {
-  background: linear-gradient(135deg, var(--brand-color-image-start), var(--brand-color-image-end));
-  height: 110px;
-  border-radius: var(--brand-radius-md);
-  margin: var(--brand-space-12) 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255,255,255,0.5);
-  font-size: var(--brand-text-sm);
-  font-style: italic;
+  display: block;
+  width: 100%;
+  height: var(--brand-space-96); /* design-reference ~100px; nearest spacing token */
+  border-radius: var(--brand-radius-sm);
+  margin: var(--brand-space-10) 0;
+  object-fit: cover;
 }
 
 .post-engagement {

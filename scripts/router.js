@@ -683,7 +683,7 @@ function renderFeed() {
               <div class="post-meta">${post.meta}</div>
             </div>
           </div>
-          ${post.image ? `<div class="post-image">[${post.image}]</div>` : ""}
+          ${post.image ? `<img class="post-image" src="${post.image}" alt="${post.author} post image" loading="lazy">` : ""}
           <div class="post-content">${post.content}</div>
           <div class="post-engagement">
             <span>👍 ${post.likes}</span>
