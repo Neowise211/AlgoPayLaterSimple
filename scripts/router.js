@@ -672,6 +672,14 @@ function renderFeed() {
       const isPinned = state.pinnedEvidence.some(function matchPinned(evidence) {
         return evidence.postId === post.id;
       });
+      const imageValue = typeof post.image === "string" ? post.image.trim() : "";
+      const hasValidImagePath =
+        imageValue.startsWith("assets/") && /\.(png|jpe?g|webp|gif|svg)$/i.test(imageValue);
+      const imageMarkup = hasValidImagePath
+        ? `<img class="post-image" src="${imageValue}" alt="${post.author} post image" loading="lazy">`
+        : '<div class="post-image-placeholder">No post photo provided</div>';
+      const contentValue = typeof post.content === "string" ? post.content.trim() : "";
+      const contentText = hasValidImagePath && !contentValue ? "See image for details" : post.content;
 
       return `
         <div class="post ${isPinned ? "pinned" : ""}" onclick="handlePostClick('${post.id}')">
@@ -683,8 +691,8 @@ function renderFeed() {
               <div class="post-meta">${post.meta}</div>
             </div>
           </div>
-          ${post.image ? `<img class="post-image" src="${post.image}" alt="${post.author} post image" loading="lazy">` : ""}
-          <div class="post-content">${post.content}</div>
+          ${imageMarkup}
+          <div class="post-content">${contentText}</div>
           <div class="post-engagement">
             <span>👍 ${post.likes}</span>
             <span>💬 ${post.comments}</span>

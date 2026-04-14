@@ -841,10 +841,27 @@ button:focus-visible {
 .post-image {
   display: block;
   width: 100%;
-  height: var(--brand-space-96); /* design-reference ~100px; nearest spacing token */
+  height: auto;
   border-radius: var(--brand-radius-sm);
   margin: var(--brand-space-10) 0;
-  object-fit: cover;
+  object-fit: contain;
+  max-width: 100%;
+}
+
+/* INVENTED — not in design-reference.html, follows surrounding vibe */
+.post-image-placeholder {
+  width: 100%;
+  min-height: var(--brand-space-96);
+  border-radius: var(--brand-radius-sm);
+  margin: var(--brand-space-10) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-color-quote-bg);
+  border: var(--brand-space-1) dashed var(--brand-color-border-muted);
+  color: var(--brand-color-ink-muted);
+  font-size: var(--brand-space-12);
+  font-weight: 600;
 }
 
 .post-engagement {
