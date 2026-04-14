@@ -404,15 +404,6 @@ button:hover {
 .inv-context,
 .inv-body {
   transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
-  transform-origin: left center;
-}
-
-.investigation.panel-open .inv-topbar,
-.investigation.panel-open .inv-context,
-.investigation.panel-open .inv-body {
-  transform: scaleX(0.72);
-  filter: grayscale(0.18) brightness(0.94);
-  opacity: 0.92;
 }
 
 .inv-topbar {
@@ -695,6 +686,12 @@ button:hover {
   justify-content: space-between;
   gap: var(--brand-space-20);
   padding: var(--brand-space-20);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.pin-overlay.is-visible {
+  opacity: 1;
 }
 
 .evidence-preview-wrap {
@@ -715,6 +712,14 @@ button:hover {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform: translateY(var(--brand-space-10));
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  opacity: 0;
+}
+
+.pin-overlay.is-visible .evidence-preview-card {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .evidence-preview-header {
@@ -806,20 +811,18 @@ button:hover {
   box-shadow: var(--brand-shadow-lg);
   display: flex;
   flex-direction: column;
-  animation: slideIn 0.3s ease;
   height: calc(100vh - var(--brand-space-xl));
   border-radius: var(--brand-radius-lg);
   overflow: hidden;
   flex-shrink: 0;
+  transform: translateX(var(--brand-space-20));
+  transition: transform 0.6s ease, opacity 0.6s ease;
+  opacity: 0;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+.pin-overlay.is-visible .pin-panel {
+  transform: translateX(0);
+  opacity: 1;
 }
 
 .pin-panel-header {

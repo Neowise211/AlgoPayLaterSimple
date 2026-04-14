@@ -58,6 +58,12 @@ function formatCurrency(amount) {
 }
 
 const EVIDENCE_PREVIEW_PLACEHOLDER = "assets/evidence-placeholder.png";
+let pinPanelHideTimer = null;
+
+if (typeof Image !== "undefined") {
+  const evidencePreviewPreload = new Image();
+  evidencePreviewPreload.src = EVIDENCE_PREVIEW_PLACEHOLDER;
+}
 
 function getBestTime(difficulty) {
   const board = state.leaderboards[difficulty] || [];
@@ -224,7 +230,7 @@ function renderInvestigation() {
   }
 
   investigationScreen.innerHTML = `
-    <div class="investigation" id="investigationShell">
+    <div class="investigation">
       <div class="inv-topbar">
         <div class="logo">
           <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
@@ -730,11 +736,14 @@ function openPinPanel(postId) {
   if (voucherFlash) voucherFlash.classList.remove("active");
 
   updateStrength();
-  pinPanel.classList.remove("hidden");
-  const investigationShell = document.getElementById("investigationShell");
-  if (investigationShell) {
-    investigationShell.classList.add("panel-open");
+  if (pinPanelHideTimer) {
+    clearTimeout(pinPanelHideTimer);
+    pinPanelHideTimer = null;
   }
+  pinPanel.classList.remove("hidden");
+  requestAnimationFrame(function showPinPanel() {
+    pinPanel.classList.add("is-visible");
+  });
 }
 
 function selectPinReason(reason) {
@@ -1056,11 +1065,14 @@ function closeConsequence() {
 function closePinPanel() {
   const pinPanel = document.getElementById("pinPanel");
   if (!pinPanel) return;
-  pinPanel.classList.add("hidden");
-  const investigationShell = document.getElementById("investigationShell");
-  if (investigationShell) {
-    investigationShell.classList.remove("panel-open");
+  pinPanel.classList.remove("is-visible");
+  if (pinPanelHideTimer) {
+    clearTimeout(pinPanelHideTimer);
   }
+  pinPanelHideTimer = setTimeout(function hidePinPanel() {
+    pinPanel.classList.add("hidden");
+    pinPanelHideTimer = null;
+  }, 620);
   state.activePin = null;
 }
 
