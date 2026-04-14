@@ -131,32 +131,32 @@ function renderDifficulty() {
         <div class="diff-card easy" onclick="startCase('easy')">
           <img class="diff-card-avatar" src="assets/avatar-easy.png" alt="Applicant photo">
           <span class="diff-badge">EASY</span>
-          <h3>Underage Applicant</h3>
-          <p class="case-desc">A young applicant requesting a personal loan. Something does not add up.</p>
+          <h3>Linda Walker</h3>
+          <p class="case-desc">Standard personal loan packet. Corroborate declarations against supporting records as filed.</p>
           <div class="best-time">Best: ${getBestTime("easy")}</div>
         </div>
 
         <div class="diff-card medium" onclick="startCase('medium')">
           <img class="diff-card-avatar" src="assets/avatar-medium.png" alt="Applicant photo">
           <span class="diff-badge">MEDIUM</span>
-          <h3>Pesto Case</h3>
-          <p class="case-desc">Small business loan for a food venture. Real operation or staged profile?</p>
+          <h3>Pest O Ann Tara</h3>
+          <p class="case-desc">Business facility request. Verify income, collateral, and operational consistency across uploads.</p>
           <div class="best-time">Best: ${getBestTime("medium")}</div>
         </div>
 
         <div class="diff-card hard" onclick="startCase('hard')">
           <img class="diff-card-avatar" src="assets/avatar-hard.png" alt="Applicant photo">
           <span class="diff-badge">HARD</span>
-          <h3>Wi-Fi Thief</h3>
-          <p class="case-desc">Neighborhood complaints clash with polished social presence.</p>
+          <h3>Wai Fi Ni Peter</h3>
+          <p class="case-desc">Unsecured loan with a busy file. Cross-check timeline, employment, and public footprint for alignment.</p>
           <div class="best-time">Best: ${getBestTime("hard")}</div>
         </div>
 
         <div class="diff-card extreme" onclick="startCase('extreme')">
           <img class="diff-card-avatar" src="assets/avatar-extreme.png" alt="Applicant photo">
           <span class="diff-badge">EXTREME</span>
-          <h3>HUAC Case</h3>
-          <p class="case-desc">Everything points one way. The truth may still be more complex.</p>
+          <h3>Ha Uac M. Angbit</h3>
+          <p class="case-desc">High-volume dossier with extensive attachments. Review methodically before stamping a verdict.</p>
           <div class="best-time">Best: ${getBestTime("extreme")}</div>
         </div>
       </div>
@@ -247,7 +247,6 @@ function renderInvestigation() {
 
       <div class="inv-context">
         <div class="case-label">Case · ${applicant.name} · ${formatCurrency(applicant.loanAmount)}</div>
-        <div class="flags">🚩 Red flags found: <span id="flagCount">0</span></div>
       </div>
 
       <div class="inv-body">
@@ -276,6 +275,9 @@ function renderInvestigation() {
               <span class="evidence-preview-platform" id="evidencePreviewPlatform">Facebook</span>
             </div>
             <div class="evidence-preview-frame">
+              <button type="button" class="evidence-nav-btn evidence-nav-prev" onclick="event.stopPropagation(); navigateEvidence(-1)" aria-label="Previous post">&lsaquo;</button>
+              <button type="button" class="evidence-nav-btn evidence-nav-next" onclick="event.stopPropagation(); navigateEvidence(1)" aria-label="Next post">&rsaquo;</button>
+              <span class="evidence-nav-counter" id="evidenceNavCounter">1 / 3</span>
               <img
                 id="evidencePreviewBackdrop"
                 class="evidence-preview-backdrop"
@@ -301,18 +303,6 @@ function renderInvestigation() {
           <div class="pin-panel-header">
             <h3>📌 CLASSIFY EVIDENCE</h3>
             <button class="close-btn" onclick="closePinPanel()">✕</button>
-          </div>
-          <div class="pin-quote" id="pinQuote"></div>
-
-          <div class="voucher-tray">
-            <div class="voucher-card v-auto" id="voucherAuto" onclick="togglePinVoucher('auto')">
-              <div class="voucher-icon">🟡</div>
-              <div class="voucher-label">AUTO<br>CHECKOUT</div>
-            </div>
-            <div class="voucher-card v-flash" id="voucherFlash" onclick="togglePinVoucher('flash')">
-              <div class="voucher-icon">⚡</div>
-              <div class="voucher-label">FLASH<br>DEAL</div>
-            </div>
           </div>
 
           <div class="pin-step">
@@ -613,7 +603,7 @@ function startCase(diff) {
   state.pinnedEvidence = [];
   state.selectedVerdict = null;
   state.activePin = null;
-  state.pinDraft = { reason: null, field: null, note: "", vouchers: {} };
+  state.pinDraft = { reason: null, field: null, note: "" };
   showScreen("briefing");
 }
 
@@ -704,12 +694,23 @@ function renderFeed() {
     .join("");
 }
 
+function navigateEvidence(direction) {
+  if (!state.activePin || !state.currentCase) return;
+  var posts = state.currentCase.posts[state.activePlatform] || [];
+  if (posts.length === 0) return;
+  var currentIndex = posts.findIndex(function findActive(post) {
+    return post.id === state.activePin;
+  });
+  if (currentIndex === -1) return;
+  var nextIndex = (currentIndex + direction + posts.length) % posts.length;
+  openPinPanel(posts[nextIndex].id);
+}
+
 function openPinPanel(postId) {
   const post = findPostById(state.currentCase, postId);
   if (!post) return;
 
   const pinPanel = document.getElementById("pinPanel");
-  const quote = document.getElementById("pinQuote");
   const note = document.getElementById("pinNote");
   const previewBackdrop = document.getElementById("evidencePreviewBackdrop");
   const previewImage = document.getElementById("evidencePreviewImage");
@@ -717,12 +718,11 @@ function openPinPanel(postId) {
   const previewTitle = document.getElementById("evidencePreviewTitle");
   const previewMeta = document.getElementById("evidencePreviewMeta");
   const previewExcerpt = document.getElementById("evidencePreviewExcerpt");
-  if (!pinPanel || !quote || !note || !previewBackdrop || !previewImage || !previewPlatform || !previewTitle || !previewMeta || !previewExcerpt) return;
+  if (!pinPanel || !note || !previewBackdrop || !previewImage || !previewPlatform || !previewTitle || !previewMeta || !previewExcerpt) return;
 
   state.activePin = postId;
-  state.pinDraft = { reason: null, field: null, note: "", vouchers: {} };
+  state.pinDraft = { reason: null, field: null, note: "" };
 
-  quote.textContent = '"' + post.content + '"';
   note.value = "";
   var hasImage = typeof post.image === "string" && post.image.trim() !== "";
   var imageSrc = hasImage ? post.image : EVIDENCE_PREVIEW_PLACEHOLDER;
@@ -735,17 +735,21 @@ function openPinPanel(postId) {
   previewExcerpt.textContent =
     post.previewDescription || post.content || "No additional context available.";
 
+  var feedPosts = state.currentCase.posts[state.activePlatform] || [];
+  var currentIndex = feedPosts.findIndex(function findById(p) {
+    return p.id === postId;
+  });
+  var counter = document.getElementById("evidenceNavCounter");
+  if (counter && currentIndex >= 0) {
+    counter.textContent = String(currentIndex + 1) + " / " + String(feedPosts.length);
+  }
+
   document.querySelectorAll(".radio-option").forEach(function clearReason(option) {
     option.classList.remove("selected");
   });
   document.querySelectorAll(".chip").forEach(function clearField(chip) {
     chip.classList.remove("selected");
   });
-
-  const voucherAuto = document.getElementById("voucherAuto");
-  const voucherFlash = document.getElementById("voucherFlash");
-  if (voucherAuto) voucherAuto.classList.remove("active");
-  if (voucherFlash) voucherFlash.classList.remove("active");
 
   updateStrength();
   if (pinPanelHideTimer) {
@@ -772,17 +776,6 @@ function selectPinField(field) {
     chip.classList.toggle("selected", chip.dataset.field === field);
   });
   updateStrength();
-}
-
-function togglePinVoucher(voucherName) {
-  const current = Boolean(state.pinDraft.vouchers[voucherName]);
-  state.pinDraft.vouchers[voucherName] = !current;
-
-  const cardId = "voucher" + voucherName.charAt(0).toUpperCase() + voucherName.slice(1);
-  const card = document.getElementById(cardId);
-  if (card) {
-    card.classList.toggle("active", state.pinDraft.vouchers[voucherName]);
-  }
 }
 
 function updatePinNote(noteValue) {
@@ -821,8 +814,7 @@ function updateStrength() {
 function saveEvidence() {
   if (!state.activePin) return;
 
-  const hasAuto = Boolean(state.pinDraft.vouchers.auto);
-  if (!hasAuto && (!state.pinDraft.reason || !state.pinDraft.field)) {
+  if (!state.pinDraft.reason || !state.pinDraft.field) {
     alert("Please complete Step 1 and Step 2 before saving.");
     return;
   }
@@ -834,8 +826,7 @@ function saveEvidence() {
     postId: post.id,
     reason: state.pinDraft.reason,
     field: state.pinDraft.field,
-    note: state.pinDraft.note,
-    vouchers: Object.assign({}, state.pinDraft.vouchers)
+    note: state.pinDraft.note
   });
 
   closePinPanel();
@@ -900,18 +891,11 @@ function handlePostClick(postId) {
 
 function updateBadges() {
   const evidenceBadge = document.getElementById("evidenceBadge");
-  const flagCount = document.getElementById("flagCount");
   const submitBtn = document.getElementById("submitBtn");
 
   const evidenceCount = state.pinnedEvidence.length;
-  const redFlagCount = state.pinnedEvidence.reduce(function countFlags(total, evidence) {
-    const post = findPostById(state.currentCase, evidence.postId);
-    if (!post) return total;
-    return post.classification === "strong" || post.classification === "moderate" ? total + 1 : total;
-  }, 0);
 
   if (evidenceBadge) evidenceBadge.textContent = String(evidenceCount);
-  if (flagCount) flagCount.textContent = String(redFlagCount);
   if (submitBtn) submitBtn.disabled = evidenceCount <= 0;
 }
 
@@ -1101,10 +1085,10 @@ window.formatTime = formatTime;
 window.switchPlatform = switchPlatform;
 window.renderFeed = renderFeed;
 window.handlePostClick = handlePostClick;
+window.navigateEvidence = navigateEvidence;
 window.openPinPanel = openPinPanel;
 window.selectPinReason = selectPinReason;
 window.selectPinField = selectPinField;
-window.togglePinVoucher = togglePinVoucher;
 window.updatePinNote = updatePinNote;
 window.updateStrength = updateStrength;
 window.saveEvidence = saveEvidence;

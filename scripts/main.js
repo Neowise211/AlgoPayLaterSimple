@@ -18,12 +18,28 @@ document.addEventListener("DOMContentLoaded", function onReady() {
 
   showScreen("home");
 
-  document.addEventListener("keydown", function handleEscape(event) {
-    if (event.key !== "Escape") return;
+  document.addEventListener("keydown", function handlePinPanelKeys(event) {
     const pinPanel = document.getElementById("pinPanel");
     if (!pinPanel || pinPanel.classList.contains("hidden")) return;
-    if (typeof closePinPanel === "function") {
-      closePinPanel();
+
+    if (event.key === "Escape") {
+      if (typeof closePinPanel === "function") {
+        closePinPanel();
+      }
+      return;
+    }
+
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+
+    var tag = event.target && event.target.tagName;
+    if (tag === "TEXTAREA" || tag === "INPUT") return;
+
+    if (typeof navigateEvidence !== "function") return;
+    event.preventDefault();
+    if (event.key === "ArrowLeft") {
+      navigateEvidence(-1);
+    } else {
+      navigateEvidence(1);
     }
   });
 });

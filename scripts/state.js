@@ -4,7 +4,7 @@ const state = {
   activePlatform: "facebook",
   pinnedEvidence: [],
   activePin: null,
-  pinDraft: { reason: null, field: null, note: "", vouchers: {} },
+  pinDraft: { reason: null, field: null, note: "" },
   selectedVerdict: null,
   startTime: null,
   elapsedSeconds: 0,

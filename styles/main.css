@@ -617,18 +617,13 @@ button:focus-visible {
   background: var(--brand-color-desk-raised);
   padding: var(--brand-space-8) var(--brand-space-24);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: var(--brand-text-sm);
   border-bottom: 1px solid var(--brand-color-desk-border);
 }
 
 .inv-context .case-label {
   color: var(--brand-color-desk-ink);
-  font-weight: 600;
-}
-
-.inv-context .flags {
-  color: var(--brand-color-gold);
   font-weight: 600;
 }
 
@@ -990,6 +985,61 @@ button:focus-visible {
   box-shadow: var(--brand-shadow-md);
 }
 
+/* INVENTED — not in design-reference.html, follows surrounding vibe */
+.evidence-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--brand-z-tabs);
+  width: var(--brand-space-36);
+  height: var(--brand-space-36);
+  padding: 0;
+  border: 1px solid var(--brand-color-desk-border);
+  border-radius: var(--brand-radius-circle);
+  background: var(--brand-color-gold);
+  color: var(--brand-color-ink);
+  font-size: var(--brand-text-xl);
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--brand-shadow-md);
+  transition:
+    filter var(--brand-duration-normal) var(--brand-ease-out),
+    transform var(--brand-duration-normal) var(--brand-ease-out);
+}
+
+.evidence-nav-btn:hover {
+  filter: brightness(1.05);
+}
+
+.evidence-nav-btn:active {
+  transform: translateY(-50%) scale(0.96);
+  transition-timing-function: ease-in;
+}
+
+.evidence-nav-prev {
+  left: var(--brand-space-10);
+}
+
+.evidence-nav-next {
+  right: var(--brand-space-10);
+}
+
+.evidence-nav-counter {
+  position: absolute;
+  bottom: var(--brand-space-10);
+  right: var(--brand-space-10);
+  z-index: var(--brand-z-tabs);
+  padding: var(--brand-space-4) var(--brand-space-10);
+  font-family: var(--brand-font-mono);
+  font-size: var(--brand-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--brand-color-desk-ink);
+  background: var(--brand-color-overlay);
+  border-radius: var(--brand-radius-pill);
+}
+
 .evidence-preview-caption {
   padding: var(--brand-space-14) var(--brand-space-18);
   background: var(--brand-color-surface);
@@ -1070,80 +1120,6 @@ button:focus-visible {
   opacity: 1;
   transform: none;
   filter: none;
-}
-
-.pin-quote {
-  padding: var(--brand-space-14) var(--brand-space-20);
-  background: var(--brand-color-quote-bg);
-  border-bottom: 1px solid var(--brand-color-surface-strong);
-  font-size: var(--brand-text-sm);
-  color: var(--brand-color-brown-900);
-  font-style: italic;
-  line-height: var(--brand-leading-relaxed);
-}
-
-
-/* Voucher Tray */
-
-.voucher-tray {
-  padding: var(--brand-space-12) var(--brand-space-16);
-  background: var(--brand-color-quote-bg);
-  border-bottom: 1px solid var(--brand-color-surface-strong);
-  display: flex;
-  gap: var(--brand-space-8);
-  overflow-x: auto;
-}
-
-.voucher-card {
-  flex: 0 0 auto;
-  width: 100px;
-  background: var(--brand-color-surface);
-  border: 1.5px solid;
-  border-radius: var(--brand-radius-md);
-  padding: var(--brand-space-8);
-  cursor: pointer;
-  transition: all var(--brand-duration-normal) var(--brand-ease-out);
-}
-
-.voucher-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--brand-shadow-sm);
-}
-
-.voucher-card.active {
-  border-width: 2.5px;
-  box-shadow: var(--brand-shadow-glow-gold);
-}
-
-.voucher-card.v-auto { border-color: var(--brand-color-gold); }
-.voucher-card.v-flash { border-color: var(--brand-color-slate); }
-
-.voucher-icon {
-  height: var(--brand-space-28);
-  border-radius: var(--brand-radius-xs);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: var(--brand-text-lg);
-  margin-bottom: var(--brand-space-4);
-}
-
-.v-auto .voucher-icon {
-  background: linear-gradient(135deg, var(--brand-color-gold), var(--brand-color-gold-dark));
-}
-
-.v-flash .voucher-icon {
-  background: linear-gradient(135deg, var(--brand-color-slate), #2C4366);
-}
-
-.voucher-label {
-  font-family: var(--brand-font-mono);
-  font-size: var(--brand-text-2xs);
-  font-weight: 700;
-  color: var(--brand-color-brown-700);
-  text-align: center;
-  letter-spacing: 0.04em;
 }
 
 

@@ -20,12 +20,7 @@ function calculateEvidencePoints(pinnedEvidence, caseData) {
     const post = findPostById(caseData, evidence.postId);
     if (!post) return total;
 
-    let points = Number(post.points) || 0;
-    const hasCashback = evidence.vouchers && evidence.vouchers.cashback === true;
-    if (post.classification === "red-herring" && hasCashback && points < -2) {
-      points = -2;
-    }
-
+    const points = Number(post.points) || 0;
     return total + points;
   }, 0);
 }
