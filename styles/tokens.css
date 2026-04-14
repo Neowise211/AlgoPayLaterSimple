@@ -1,0 +1,43 @@
+:root {
+  --brand-color-bg: #F5F0E6;
+  --brand-color-surface: #FFF8E7;
+  --brand-color-ink: #2C1810;
+  --brand-color-ink-muted: #8B6914;
+  --brand-color-gold: #F0C050;
+  --brand-color-gold-dark: #D4A630;
+  --brand-color-crimson: #A52424;
+  --brand-color-crimson-dark: #7A1818;
+  --brand-color-paper: #EDDFB8;
+  --brand-color-paper-dark: #C5B078;
+  --brand-color-success: #3FA856;
+  --brand-color-warning: #E89040;
+
+  --brand-space-xs: 4px;
+  --brand-space-sm: 8px;
+  --brand-space-md: 16px;
+  --brand-space-lg: 24px;
+  --brand-space-xl: 40px;
+
+  --brand-radius-sm: 6px;
+  --brand-radius-md: 8px;
+  --brand-radius-lg: 12px;
+  --brand-radius-pill: 999px;
+
+  --brand-font-ui: -apple-system, "Segoe UI", Arial, sans-serif;
+  --brand-font-mono: "Courier New", monospace;
+
+  --brand-shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --brand-shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+  --brand-shadow-lg: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--brand-color-bg);
+  font-family: var(--brand-font-ui);
+}
