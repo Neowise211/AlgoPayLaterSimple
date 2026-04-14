@@ -400,6 +400,21 @@ button:hover {
   flex-direction: column;
 }
 
+.inv-topbar,
+.inv-context,
+.inv-body {
+  transition: transform 0.3s ease, filter 0.3s ease, opacity 0.3s ease;
+  transform-origin: left center;
+}
+
+.investigation.panel-open .inv-topbar,
+.investigation.panel-open .inv-context,
+.investigation.panel-open .inv-body {
+  transform: scaleX(0.72);
+  filter: grayscale(0.18) brightness(0.94);
+  opacity: 0.92;
+}
+
 .inv-topbar {
   background: var(--brand-color-topbar-bg);
   padding: var(--brand-space-10) var(--brand-space-20);
@@ -664,6 +679,273 @@ button:hover {
   color: var(--brand-color-ink-meta);
   border-top: 1px solid var(--brand-color-border-lighter);
   padding-top: var(--brand-space-sm);
+}
+
+/* PIN CLASSIFICATION PANEL */
+.pin-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--brand-color-overlay);
+  z-index: 160;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pin-panel {
+  width: calc(var(--brand-space-120) * 3 + var(--brand-space-32));
+  background: linear-gradient(180deg, var(--brand-color-surface), var(--brand-color-surface-soft));
+  border-left: 3px solid var(--brand-color-gold);
+  box-shadow: var(--brand-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.pin-panel-header {
+  background: var(--brand-color-crimson);
+  color: var(--brand-color-surface);
+  padding: var(--brand-space-12) var(--brand-space-18);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pin-panel-header h3 {
+  font-size: var(--brand-space-13);
+  font-weight: 700;
+  letter-spacing: var(--brand-space-1);
+}
+
+.close-btn {
+  background: transparent;
+  color: var(--brand-color-surface);
+  font-size: var(--brand-space-20);
+  opacity: 0.7;
+}
+
+.pin-quote {
+  padding: var(--brand-space-12) var(--brand-space-18);
+  background: var(--brand-color-quote-bg);
+  border-bottom: 1px solid var(--brand-color-surface-strong);
+  font-size: var(--brand-space-12);
+  color: var(--brand-color-brown-900);
+  font-style: italic;
+}
+
+.voucher-tray {
+  padding: var(--brand-space-10) var(--brand-space-14);
+  background: var(--brand-color-quote-bg);
+  border-bottom: 1px solid var(--brand-color-surface-strong);
+  display: flex;
+  gap: var(--brand-space-6);
+  overflow-x: auto;
+}
+
+.voucher-card {
+  flex: 0 0 auto;
+  width: var(--brand-space-100);
+  background: var(--brand-color-surface);
+  border: 1.5px solid;
+  border-radius: var(--brand-radius-md);
+  padding: var(--brand-space-6);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.voucher-card:hover {
+  transform: translateY(-2px);
+}
+
+.voucher-card.active {
+  border-width: 2.5px;
+  box-shadow: var(--brand-shadow-gold-ring);
+}
+
+.voucher-card.v-auto {
+  border-color: var(--brand-color-gold);
+}
+
+.voucher-card.v-flash {
+  border-color: var(--brand-color-platform-li);
+}
+
+.voucher-icon {
+  height: var(--brand-space-28);
+  border-radius: var(--brand-radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-color-surface);
+  font-size: var(--brand-space-md);
+  margin-bottom: var(--brand-space-xs);
+}
+
+.v-auto .voucher-icon {
+  background: linear-gradient(135deg, var(--brand-color-gold), var(--brand-color-gold-dark));
+}
+
+.v-flash .voucher-icon {
+  background: linear-gradient(135deg, var(--brand-color-platform-li), var(--brand-color-platform-fb));
+}
+
+.voucher-label {
+  font-size: var(--brand-space-9);
+  font-weight: 700;
+  color: var(--brand-color-brown-700);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.pin-step {
+  padding: var(--brand-space-14) var(--brand-space-18);
+  border-bottom: 1px solid var(--brand-color-surface-strong);
+}
+
+.step-label {
+  font-size: var(--brand-space-10);
+  color: var(--brand-color-ink-muted);
+  font-weight: 700;
+  letter-spacing: var(--brand-space-1);
+  margin-bottom: var(--brand-space-10);
+}
+
+.radio-option {
+  background: var(--brand-color-surface);
+  border: 1px solid var(--brand-color-border-muted);
+  border-radius: var(--brand-radius-md);
+  padding: var(--brand-space-9) var(--brand-space-11);
+  margin-bottom: var(--brand-space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--brand-space-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-option.selected {
+  background: var(--brand-color-surface);
+  border: 2px solid var(--brand-color-crimson);
+  box-shadow: var(--brand-shadow-reject-ring);
+}
+
+.radio-dot {
+  width: var(--brand-space-14);
+  height: var(--brand-space-14);
+  border-radius: var(--brand-radius-circle);
+  border: 2px solid var(--brand-color-folder-body-border);
+  flex-shrink: 0;
+}
+
+.radio-option.selected .radio-dot {
+  background: var(--brand-color-crimson);
+  border-color: var(--brand-color-crimson);
+  position: relative;
+}
+
+.radio-option.selected .radio-dot::after {
+  content: "";
+  position: absolute;
+  top: var(--brand-space-3);
+  left: var(--brand-space-3);
+  width: var(--brand-space-xs);
+  height: var(--brand-space-xs);
+  background: var(--brand-color-surface);
+  border-radius: var(--brand-radius-circle);
+}
+
+.radio-text {
+  font-weight: 600;
+  font-size: var(--brand-space-12);
+  color: var(--brand-color-brown-900);
+}
+
+.radio-option.selected .radio-text {
+  color: var(--brand-color-crimson);
+}
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--brand-space-5);
+}
+
+.chip {
+  background: var(--brand-color-surface);
+  border: 1px solid var(--brand-color-border-muted);
+  border-radius: var(--brand-radius-xxs);
+  padding: var(--brand-space-7) var(--brand-space-sm);
+  font-size: var(--brand-space-11);
+  text-align: center;
+  color: var(--brand-color-brown-900);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  border-color: var(--brand-color-gold);
+}
+
+.chip.selected {
+  background: var(--brand-color-crimson);
+  color: var(--brand-color-surface);
+  border-color: var(--brand-color-crimson);
+  font-weight: 600;
+}
+
+.pin-note {
+  width: 100%;
+  padding: var(--brand-space-sm) var(--brand-space-10);
+  border: 1px solid var(--brand-color-border-muted);
+  border-radius: var(--brand-radius-sm);
+  font-family: inherit;
+  font-size: var(--brand-space-12);
+  resize: none;
+  height: var(--brand-space-48);
+}
+
+.pin-footer {
+  padding: var(--brand-space-14) var(--brand-space-18);
+  background: var(--brand-color-surface);
+  border-top: 2px solid var(--brand-color-gold);
+  margin-top: auto;
+}
+
+.strength-preview {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--brand-space-11);
+  color: var(--brand-color-ink-muted);
+  margin-bottom: var(--brand-space-10);
+}
+
+.strength-stars {
+  color: var(--brand-color-crimson);
+  font-weight: 700;
+}
+
+.pin-actions {
+  display: flex;
+  gap: var(--brand-space-sm);
+}
+
+.pin-actions button {
+  flex: 1;
+  padding: var(--brand-space-10);
+  border-radius: var(--brand-radius-sm-plus);
+  font-weight: 700;
+  font-size: var(--brand-space-12);
 }
 
 /* VERDICT SCREEN */
@@ -1008,10 +1290,6 @@ button:hover {
 .btn-save {
   background: var(--brand-color-crimson);
   color: var(--brand-color-surface);
-}
-
-.voucher-card.active {
-  transform: scale(0.95);
 }
 
 /* LEADERBOARD */

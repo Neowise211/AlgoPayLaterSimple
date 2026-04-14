@@ -222,7 +222,7 @@ function renderInvestigation() {
   }
 
   investigationScreen.innerHTML = `
-    <div class="investigation">
+    <div class="investigation" id="investigationShell">
       <div class="inv-topbar">
         <div class="logo">
           <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
@@ -230,7 +230,7 @@ function renderInvestigation() {
         <div class="inv-topbar-right">
           <div class="timer-display" id="timer">${formatTime(state.elapsedSeconds)}</div>
           <button class="btn-secondary" onclick="showBriefingModal()">View Application</button>
-          <button class="btn-secondary evidence-btn">
+          <button class="btn-secondary evidence-btn" onclick="showEvidenceList()">
             📌 Evidence <span class="evidence-badge" id="evidenceBadge">0</span>
           </button>
           <button class="btn-primary" id="submitBtn" onclick="goToVerdict()" disabled>SUBMIT VERDICT →</button>
@@ -258,6 +258,78 @@ function renderInvestigation() {
           </div>
         </div>
         <div class="folder-body" id="feedArea"></div>
+      </div>
+
+      <div id="pinPanel" class="pin-overlay hidden" onclick="handlePinOverlayClick(event)">
+        <div class="pin-panel">
+          <div class="pin-panel-header">
+            <h3>📌 CLASSIFY EVIDENCE</h3>
+            <button class="close-btn" onclick="closePinPanel()">✕</button>
+          </div>
+          <div class="pin-quote" id="pinQuote"></div>
+
+          <div class="voucher-tray">
+            <div class="voucher-card v-auto" id="voucherAuto" onclick="togglePinVoucher('auto')">
+              <div class="voucher-icon">🟡</div>
+              <div class="voucher-label">AUTO<br>CHECKOUT</div>
+            </div>
+            <div class="voucher-card v-flash" id="voucherFlash" onclick="togglePinVoucher('flash')">
+              <div class="voucher-icon">⚡</div>
+              <div class="voucher-label">FLASH<br>DEAL</div>
+            </div>
+          </div>
+
+          <div class="pin-step">
+            <div class="step-label">STEP 1 · WHY SUSPICIOUS?</div>
+            <div class="radio-option" data-reason="contradiction" onclick="selectPinReason('contradiction')">
+              <div class="radio-dot"></div>
+              <div class="radio-text">No Match / Contradiction</div>
+            </div>
+            <div class="radio-option" data-reason="misinformation" onclick="selectPinReason('misinformation')">
+              <div class="radio-dot"></div>
+              <div class="radio-text">Misinformation</div>
+            </div>
+            <div class="radio-option" data-reason="other" onclick="selectPinReason('other')">
+              <div class="radio-dot"></div>
+              <div class="radio-text">Other Red Flag</div>
+            </div>
+          </div>
+
+          <div class="pin-step">
+            <div class="step-label">STEP 2 · WHICH FIELD?</div>
+            <div class="chip-grid">
+              <div class="chip" data-field="age" onclick="selectPinField('age')">Age</div>
+              <div class="chip" data-field="address" onclick="selectPinField('address')">Address</div>
+              <div class="chip" data-field="employer" onclick="selectPinField('employer')">Employer</div>
+              <div class="chip" data-field="position" onclick="selectPinField('position')">Position</div>
+              <div class="chip" data-field="tenure" onclick="selectPinField('tenure')">Tenure</div>
+              <div class="chip" data-field="income" onclick="selectPinField('income')">Income</div>
+              <div class="chip" data-field="purpose" onclick="selectPinField('purpose')">Purpose</div>
+              <div class="chip" data-field="dependents" onclick="selectPinField('dependents')">Dependents</div>
+            </div>
+          </div>
+
+          <div class="pin-step">
+            <div class="step-label">STEP 3 · QUICK NOTE (OPTIONAL)</div>
+            <textarea
+              id="pinNote"
+              class="pin-note"
+              placeholder="e.g., Post says he's 17 but applicant declared 21..."
+              oninput="updatePinNote(this.value)"
+            ></textarea>
+          </div>
+
+          <div class="pin-footer">
+            <div class="strength-preview">
+              <span>Evidence strength</span>
+              <span class="strength-stars" id="strengthStars">—</span>
+            </div>
+            <div class="pin-actions">
+              <button class="btn-cancel" onclick="closePinPanel()">Cancel</button>
+              <button class="btn-save" onclick="saveEvidence()">SAVE EVIDENCE →</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -589,7 +661,159 @@ function renderFeed() {
 }
 
 function openPinPanel(postId) {
-  alert("Pin panel will be implemented in A.10.\nSelected post: " + postId);
+  const post = findPostById(state.currentCase, postId);
+  if (!post) return;
+
+  const pinPanel = document.getElementById("pinPanel");
+  const quote = document.getElementById("pinQuote");
+  const note = document.getElementById("pinNote");
+  if (!pinPanel || !quote || !note) return;
+
+  state.activePin = postId;
+  state.pinDraft = { reason: null, field: null, note: "", vouchers: {} };
+
+  quote.textContent = '"' + post.content + '"';
+  note.value = "";
+
+  document.querySelectorAll(".radio-option").forEach(function clearReason(option) {
+    option.classList.remove("selected");
+  });
+  document.querySelectorAll(".chip").forEach(function clearField(chip) {
+    chip.classList.remove("selected");
+  });
+
+  const voucherAuto = document.getElementById("voucherAuto");
+  const voucherFlash = document.getElementById("voucherFlash");
+  if (voucherAuto) voucherAuto.classList.remove("active");
+  if (voucherFlash) voucherFlash.classList.remove("active");
+
+  updateStrength();
+  pinPanel.classList.remove("hidden");
+  const investigationShell = document.getElementById("investigationShell");
+  if (investigationShell) {
+    investigationShell.classList.add("panel-open");
+  }
+}
+
+function selectPinReason(reason) {
+  state.pinDraft.reason = reason;
+  document.querySelectorAll(".radio-option").forEach(function toggleReason(option) {
+    option.classList.toggle("selected", option.dataset.reason === reason);
+  });
+  updateStrength();
+}
+
+function selectPinField(field) {
+  state.pinDraft.field = field;
+  document.querySelectorAll(".chip").forEach(function toggleField(chip) {
+    chip.classList.toggle("selected", chip.dataset.field === field);
+  });
+  updateStrength();
+}
+
+function togglePinVoucher(voucherName) {
+  const current = Boolean(state.pinDraft.vouchers[voucherName]);
+  state.pinDraft.vouchers[voucherName] = !current;
+
+  const cardId = "voucher" + voucherName.charAt(0).toUpperCase() + voucherName.slice(1);
+  const card = document.getElementById(cardId);
+  if (card) {
+    card.classList.toggle("active", state.pinDraft.vouchers[voucherName]);
+  }
+}
+
+function updatePinNote(noteValue) {
+  state.pinDraft.note = noteValue;
+}
+
+function updateStrength() {
+  const strengthStars = document.getElementById("strengthStars");
+  if (!strengthStars) return;
+  if (!state.pinDraft.reason || !state.pinDraft.field) {
+    strengthStars.textContent = "—";
+    return;
+  }
+
+  const post = findPostById(state.currentCase, state.activePin);
+  if (!post) {
+    strengthStars.textContent = "? UNCERTAIN";
+    return;
+  }
+
+  if (post.classification === "strong") {
+    strengthStars.textContent = "★★★ STRONG";
+    return;
+  }
+  if (post.classification === "moderate") {
+    strengthStars.textContent = "★★ MODERATE";
+    return;
+  }
+  if (post.classification === "weak") {
+    strengthStars.textContent = "★ WEAK";
+    return;
+  }
+  strengthStars.textContent = "? UNCERTAIN";
+}
+
+function saveEvidence() {
+  if (!state.activePin) return;
+
+  const hasAuto = Boolean(state.pinDraft.vouchers.auto);
+  if (!hasAuto && (!state.pinDraft.reason || !state.pinDraft.field)) {
+    alert("Please complete Step 1 and Step 2 before saving.");
+    return;
+  }
+
+  const post = findPostById(state.currentCase, state.activePin);
+  if (!post) return;
+
+  state.pinnedEvidence.push({
+    postId: post.id,
+    reason: state.pinDraft.reason,
+    field: state.pinDraft.field,
+    note: state.pinDraft.note,
+    vouchers: Object.assign({}, state.pinDraft.vouchers)
+  });
+
+  closePinPanel();
+  renderFeed();
+  updateBadges();
+}
+
+function showEvidenceList() {
+  if (state.pinnedEvidence.length === 0) {
+    alert("No evidence pinned yet.");
+    return;
+  }
+
+  const lines = state.pinnedEvidence
+    .map(function mapEvidence(evidence, index) {
+      const post = findPostById(state.currentCase, evidence.postId);
+      if (!post) return null;
+      const excerpt = post.content.length > 60 ? post.content.slice(0, 60) + "..." : post.content;
+      const reasonLabel = evidence.reason || "auto";
+      const fieldLabel = evidence.field || "auto";
+      return (
+        String(index + 1) +
+        '. "' +
+        excerpt +
+        '"\n   → ' +
+        reasonLabel +
+        " · " +
+        fieldLabel
+      );
+    })
+    .filter(Boolean)
+    .join("\n\n");
+
+  alert("PINNED EVIDENCE:\n\n" + lines);
+}
+
+function handlePinOverlayClick(event) {
+  if (!event || !event.target) return;
+  if (event.target.id === "pinPanel") {
+    closePinPanel();
+  }
 }
 
 function handlePostClick(postId) {
@@ -791,6 +1015,11 @@ function closePinPanel() {
   const pinPanel = document.getElementById("pinPanel");
   if (!pinPanel) return;
   pinPanel.classList.add("hidden");
+  const investigationShell = document.getElementById("investigationShell");
+  if (investigationShell) {
+    investigationShell.classList.remove("panel-open");
+  }
+  state.activePin = null;
 }
 
 function switchLBTab(diff) {
@@ -806,6 +1035,15 @@ window.formatTime = formatTime;
 window.switchPlatform = switchPlatform;
 window.renderFeed = renderFeed;
 window.handlePostClick = handlePostClick;
+window.openPinPanel = openPinPanel;
+window.selectPinReason = selectPinReason;
+window.selectPinField = selectPinField;
+window.togglePinVoucher = togglePinVoucher;
+window.updatePinNote = updatePinNote;
+window.updateStrength = updateStrength;
+window.saveEvidence = saveEvidence;
+window.showEvidenceList = showEvidenceList;
+window.handlePinOverlayClick = handlePinOverlayClick;
 window.updateBadges = updateBadges;
 window.showBriefingModal = showBriefingModal;
 window.closeBriefingModal = closeBriefingModal;
