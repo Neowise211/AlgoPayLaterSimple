@@ -724,12 +724,16 @@ function openPinPanel(postId) {
 
   quote.textContent = '"' + post.content + '"';
   note.value = "";
-  previewBackdrop.src = EVIDENCE_PREVIEW_PLACEHOLDER;
-  previewImage.src = EVIDENCE_PREVIEW_PLACEHOLDER;
-  previewPlatform.textContent = String(post.platform || state.activePlatform || "feed");
-  previewTitle.textContent = (post.author || "Applicant") + " post screenshot";
-  previewMeta.textContent = post.meta || "Screenshot placeholder";
-  previewExcerpt.textContent = post.content || "Replace this placeholder with your actual evidence image later.";
+  var hasImage = typeof post.image === "string" && post.image.trim() !== "";
+  var imageSrc = hasImage ? post.image : EVIDENCE_PREVIEW_PLACEHOLDER;
+  previewBackdrop.src = imageSrc;
+  previewImage.src = imageSrc;
+  var platformLabel = String(post.platform || state.activePlatform || "feed");
+  previewPlatform.textContent = platformLabel;
+  previewTitle.textContent = (post.author || "Applicant") + " — " + platformLabel + " post";
+  previewMeta.textContent = post.meta || "";
+  previewExcerpt.textContent =
+    post.previewDescription || post.content || "No additional context available.";
 
   document.querySelectorAll(".radio-option").forEach(function clearReason(option) {
     option.classList.remove("selected");
