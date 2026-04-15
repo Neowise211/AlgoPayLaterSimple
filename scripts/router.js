@@ -70,6 +70,15 @@ function formatCurrency(amount) {
   return "₱" + value.toLocaleString("en-PH");
 }
 
+function getApplicantLocationLine(applicant) {
+  if (!applicant) return "—";
+  const location = typeof applicant.location === "string" ? applicant.location.trim() : "";
+  if (location) return location;
+  const address = typeof applicant.address === "string" ? applicant.address.trim() : "";
+  if (address) return address;
+  return "—";
+}
+
 function escapeHtml(str) {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -517,7 +526,7 @@ function renderHome() {
       </div>
     </div>
 
-      <div class="home home--with-welcome">
+    <div class="home home--with-welcome">
       <p class="home-welcome">Hi, ${welcomeName}</p>
       <h1>LOAN INVESTIGATOR</h1>
       <p class="tagline">Catch the liar before you approve the loan.</p>
@@ -538,6 +547,26 @@ function renderDifficulty() {
   const difficultyScreen = document.getElementById("screen-difficulty");
   if (!difficultyScreen) return;
 
+  function renderDifficultyCard(diffKey, badgeLabel, cardClass) {
+    const caseData = window.CASES && window.CASES[diffKey] ? window.CASES[diffKey] : null;
+    const applicant = caseData && caseData.applicant ? caseData.applicant : null;
+    const title = applicant && applicant.name ? applicant.name : "Applicant";
+    const blurb =
+      caseData && typeof caseData.difficultyBlurb === "string" && caseData.difficultyBlurb.trim()
+        ? caseData.difficultyBlurb.trim()
+        : "Open the dossier and verify the declared details against the public record.";
+
+    return `
+        <div class="diff-card ${cardClass}" onclick="startCase('${diffKey}')">
+          <img class="diff-card-avatar" src="assets/avatar-${diffKey}.png" alt="Applicant photo">
+          <span class="diff-badge">${badgeLabel}</span>
+          <h3>${escapeHtml(title)}</h3>
+          <p class="case-desc">${escapeHtml(blurb)}</p>
+          <div class="best-time">Best: ${getBestTime(diffKey)}</div>
+        </div>
+    `;
+  }
+
   difficultyScreen.innerHTML = `
     <div class="top-actions">
       <div class="logo">
@@ -552,37 +581,10 @@ function renderDifficulty() {
     <div class="difficulty-select">
       <h2>SELECT DIFFICULTY</h2>
       <div class="diff-grid">
-        <div class="diff-card easy" onclick="startCase('easy')">
-          <img class="diff-card-avatar" src="assets/avatar-easy.png" alt="Applicant photo">
-          <span class="diff-badge">EASY</span>
-          <h3>Linda Walker</h3>
-          <p class="case-desc">Standard personal loan packet. Corroborate declarations against supporting records as filed.</p>
-          <div class="best-time">Best: ${getBestTime("easy")}</div>
-        </div>
-
-        <div class="diff-card medium" onclick="startCase('medium')">
-          <img class="diff-card-avatar" src="assets/avatar-medium.png" alt="Applicant photo">
-          <span class="diff-badge">MEDIUM</span>
-          <h3>Pest O Ann Tara</h3>
-          <p class="case-desc">Business facility request. Verify income, collateral, and operational consistency across uploads.</p>
-          <div class="best-time">Best: ${getBestTime("medium")}</div>
-        </div>
-
-        <div class="diff-card hard" onclick="startCase('hard')">
-          <img class="diff-card-avatar" src="assets/avatar-hard.png" alt="Applicant photo">
-          <span class="diff-badge">HARD</span>
-          <h3>Wai Fi Ni Peter</h3>
-          <p class="case-desc">Unsecured loan with a busy file. Cross-check timeline, employment, and public footprint for alignment.</p>
-          <div class="best-time">Best: ${getBestTime("hard")}</div>
-        </div>
-
-        <div class="diff-card extreme" onclick="startCase('extreme')">
-          <img class="diff-card-avatar" src="assets/avatar-extreme.png" alt="Applicant photo">
-          <span class="diff-badge">EXTREME</span>
-          <h3>Ha Uac M. Angbit</h3>
-          <p class="case-desc">High-volume dossier with extensive attachments. Review methodically before stamping a verdict.</p>
-          <div class="best-time">Best: ${getBestTime("extreme")}</div>
-        </div>
+        ${renderDifficultyCard("easy", "EASY", "easy")}
+        ${renderDifficultyCard("medium", "MEDIUM", "medium")}
+        ${renderDifficultyCard("hard", "HARD", "hard")}
+        ${renderDifficultyCard("extreme", "EXTREME", "extreme")}
       </div>
     </div>
   `;
@@ -605,6 +607,11 @@ function renderBriefing() {
   const applicant = state.currentCase.applicant;
   const caseId = state.currentCase.id || "easy";
   const avatarSrc = "assets/avatar-" + caseId + ".png";
+  const locationLine = getApplicantLocationLine(applicant);
+  const addressLine =
+    applicant && typeof applicant.address === "string" && applicant.address.trim()
+      ? applicant.address.trim()
+      : locationLine;
 
   briefingScreen.innerHTML = `
     <div class="briefing">
@@ -614,7 +621,7 @@ function renderBriefing() {
           <div class="dossier-avatar"><img src="${avatarSrc}" alt="${applicant.name}"></div>
           <div>
             <div class="dossier-name">${applicant.name}</div>
-            <div class="dossier-sub">Age ${applicant.age} · ${applicant.civilStatus} · ${applicant.address}</div>
+            <div class="dossier-sub">Age ${applicant.age} · ${applicant.civilStatus} · ${locationLine}</div>
           </div>
         </div>
 
@@ -626,7 +633,7 @@ function renderBriefing() {
           <div class="dossier-field"><div class="label">LOAN AMOUNT</div><div class="value">${formatCurrency(applicant.loanAmount)}</div></div>
           <div class="dossier-field"><div class="label">LOAN PURPOSE</div><div class="value">${applicant.loanPurpose}</div></div>
           <div class="dossier-field"><div class="label">DEPENDENTS</div><div class="value">${applicant.dependents}</div></div>
-          <div class="dossier-field"><div class="label">ADDRESS</div><div class="value">${applicant.address}</div></div>
+          <div class="dossier-field"><div class="label">ADDRESS</div><div class="value">${addressLine}</div></div>
         </div>
       </div>
 
@@ -899,9 +906,7 @@ function calculateAndShowScore() {
   renderScore(breakdown, isCorrect);
   showScreen("score");
 
-  if (!isCorrect) {
-    setTimeout(showConsequence, 1500);
-  }
+  setTimeout(showConsequence, 1500);
 }
 
 function renderScore(breakdown, isCorrect) {
@@ -1333,6 +1338,9 @@ function showBriefingModal() {
   var a = state.currentCase.applicant;
   var caseId = state.currentCase.id || "easy";
   var avatarSrc = "assets/avatar-" + caseId + ".png";
+  var locationLine = getApplicantLocationLine(a);
+  var addressLine =
+    a && typeof a.address === "string" && a.address.trim() ? a.address.trim() : locationLine;
 
   var modal = document.getElementById("briefingModal");
   if (!modal) {
@@ -1355,7 +1363,7 @@ function showBriefingModal() {
             <div class="folder-avatar"><img src="${avatarSrc}" alt="${a.name}"></div>
             <div>
               <div class="folder-dossier-name">${a.name}</div>
-              <div class="folder-dossier-sub">Age ${a.age} · ${a.civilStatus} · ${a.address}</div>
+              <div class="folder-dossier-sub">Age ${a.age} · ${a.civilStatus} · ${locationLine}</div>
             </div>
           </div>
           <div class="folder-dossier-fields">
@@ -1366,7 +1374,7 @@ function showBriefingModal() {
             <div class="folder-dossier-field"><div class="label">LOAN AMOUNT</div><div class="value">${formatCurrency(a.loanAmount)}</div></div>
             <div class="folder-dossier-field"><div class="label">LOAN PURPOSE</div><div class="value">${a.loanPurpose}</div></div>
             <div class="folder-dossier-field"><div class="label">DEPENDENTS</div><div class="value">${a.dependents}</div></div>
-            <div class="folder-dossier-field"><div class="label">ADDRESS</div><div class="value">${a.address}</div></div>
+            <div class="folder-dossier-field"><div class="label">ADDRESS</div><div class="value">${addressLine}</div></div>
           </div>
           <button class="btn-primary folder-close-btn" onclick="closeBriefingModal()">CLOSE FILE</button>
         </div>
@@ -1411,14 +1419,184 @@ function closeBriefingModal() {
   }, 600);
 }
 
-function showConsequence() {
-  if (!state.currentCase || !state.currentCase.consequences) return;
+function getAllCasePosts(caseData) {
+  if (!caseData || !caseData.posts) return [];
+  return []
+    .concat(caseData.posts.facebook || [])
+    .concat(caseData.posts.instagram || [])
+    .concat(caseData.posts.linkedin || [])
+    .concat(caseData.posts.twitter || []);
+}
 
-  const branch =
-    state.selectedVerdict === "approve"
-      ? state.currentCase.consequences.wrongApprove
-      : state.currentCase.consequences.wrongReject;
-  if (!branch) return;
+function getPlatformLabel(platform) {
+  if (platform === "facebook") return "Facebook";
+  if (platform === "instagram") return "Instagram";
+  if (platform === "linkedin") return "LinkedIn";
+  if (platform === "twitter") return "Twitter/X";
+  return "Feed";
+}
+
+function getFieldLabel(field) {
+  if (field === "age") return "age";
+  if (field === "address") return "address";
+  if (field === "employer") return "employer";
+  if (field === "position") return "position";
+  if (field === "tenure") return "work history";
+  if (field === "income") return "income";
+  if (field === "purpose") return "loan purpose";
+  if (field === "dependents") return "dependents";
+  return "file details";
+}
+
+function getClueText(post) {
+  if (!post) return "No specific clue was recovered from the file.";
+  return (
+    post.previewDescription ||
+    post.content ||
+    post.meta ||
+    "A relevant contradiction was present in the file."
+  );
+}
+
+function buildConsequenceFeedback() {
+  if (!state.currentCase) return null;
+
+  const isCorrect = state.selectedVerdict === state.currentCase.correctVerdict;
+  const followUp = state.currentCase.followUp;
+  const bundle =
+    followUp && followUp[isCorrect ? "correct" : "wrong"]
+      ? followUp[isCorrect ? "correct" : "wrong"]
+      : null;
+
+  if (bundle) {
+    const pinnedPosts = state.pinnedEvidence
+      .map(function mapPinned(evidence) {
+        return findPostById(state.currentCase, evidence.postId);
+      })
+      .filter(Boolean);
+    const pinnedIds = new Set(
+      state.pinnedEvidence.map(function mapPinnedId(evidence) {
+        return evidence.postId;
+      })
+    );
+    const strongPosts = allPosts.filter(function onlyStrong(post) {
+      return post.classification === "strong";
+    });
+    const missedStrongPosts = strongPosts.filter(function onlyMissed(post) {
+      return !pinnedIds.has(post.id);
+    });
+
+    const missedCount = missedStrongPosts.length;
+    const pinnedCount = pinnedPosts.length;
+
+    let body = bundle.body || "";
+    if (!isCorrect) {
+      const wrongKind =
+        state.selectedVerdict === "approve" && state.currentCase.correctVerdict !== "approve"
+          ? "wrongApprove"
+          : "wrongReject";
+
+      if (wrongKind === "wrongApprove") {
+        if (missedCount > 0) {
+          body += " We also left " + missedCount + " strong clue" + (missedCount > 1 ? "s" : "") + " unpinned.";
+        } else if (pinnedCount === 0) {
+          body += " No evidence was pinned before the verdict was submitted.";
+        }
+      } else {
+        if (pinnedCount > 0) {
+          body += " Make sure the denial is anchored to the clearest contradiction in the record.";
+        } else {
+          body += " A rejection needs a clearly documented contradiction, not just instinct.";
+        }
+      }
+    }
+
+    const impact = bundle.impactReport || { defaultLoss: 0, trustPoints: 0, lessonShort: "—" };
+
+    return {
+      subject: bundle.subjectLine || "Case review update",
+      body: body,
+      pullquote: bundle.advisorQuote || "—",
+      impact: {
+        loss: Number(impact.defaultLoss) || 0,
+        trust: Number(impact.trustPoints) || 0,
+        lesson: bundle.lesson || impact.lessonShort || "—"
+      },
+      lessonLong: ""
+    };
+  }
+
+  if (!state.currentCase.consequences) return null;
+
+  const branchKey = state.selectedVerdict === "approve" ? "wrongApprove" : "wrongReject";
+  const branch = state.currentCase.consequences[branchKey];
+  if (!branch) return null;
+
+  const allPosts = getAllCasePosts(state.currentCase);
+  const pinnedPosts = state.pinnedEvidence
+    .map(function mapPinned(evidence) {
+      return findPostById(state.currentCase, evidence.postId);
+    })
+    .filter(Boolean);
+  const pinnedIds = new Set(
+    state.pinnedEvidence.map(function mapPinnedId(evidence) {
+      return evidence.postId;
+    })
+  );
+  const strongPosts = allPosts.filter(function onlyStrong(post) {
+    return post.classification === "strong";
+  });
+  const missedStrongPosts = strongPosts.filter(function onlyMissed(post) {
+    return !pinnedIds.has(post.id);
+  });
+
+  const primaryPost =
+    (branch.primaryCluePostId && findPostById(state.currentCase, branch.primaryCluePostId)) ||
+    missedStrongPosts[0] ||
+    pinnedPosts[0] ||
+    strongPosts[0] ||
+    allPosts[0] ||
+    null;
+
+  const clueText = getClueText(primaryPost);
+  const platformLabel = primaryPost ? getPlatformLabel(primaryPost.platform) : "the file";
+  const fieldLabel = primaryPost ? getFieldLabel(primaryPost.correctField) : "file details";
+  const missedCount = missedStrongPosts.length;
+  const pinnedCount = pinnedPosts.length;
+
+  let body = branch.body || "";
+  if (branchKey === "wrongApprove") {
+    if (missedCount > 0) {
+      body += " We also left " + missedCount + " strong clue" + (missedCount > 1 ? "s" : "") + " unpinned.";
+    } else if (pinnedCount === 0) {
+      body += " No evidence was pinned before the verdict was submitted.";
+    }
+  } else {
+    if (pinnedCount > 0) {
+      body += " Make sure the denial is anchored to the clearest contradiction in the record.";
+    } else {
+      body += " A rejection needs a clearly documented contradiction, not just instinct.";
+    }
+  }
+
+  const pullquote = primaryPost
+    ? branchKey === "wrongApprove"
+      ? platformLabel + " already pointed to the mismatch on " + fieldLabel + ": " + clueText + " — Ate Vivien"
+      : "If we're denying a file, cite the exact contradiction. " + platformLabel + " showed: " + clueText + " — Ate Vivien"
+    : "We need to tie the verdict back to the strongest documented clue next time. — Ate Vivien";
+
+  return {
+    subject: branch.subject || "Case review update",
+    body: body,
+    pullquote: pullquote,
+    impact: branch.impact || { loss: 0, trust: 0, lesson: "Review the strongest clue first" },
+    lessonLong: ""
+  };
+}
+
+function showConsequence() {
+  const feedback = buildConsequenceFeedback();
+  if (!feedback) return;
 
   let consequenceModal = document.getElementById("consequenceModal");
   if (!consequenceModal) {
@@ -1427,9 +1605,9 @@ function showConsequence() {
     document.body.appendChild(consequenceModal);
   }
 
-  const trustValue = Number(branch.impact && branch.impact.trust) || 0;
+  const trustValue = Number(feedback.impact && feedback.impact.trust) || 0;
   const trustText = trustValue > 0 ? "+" + trustValue : String(trustValue);
-  const lossValue = Number(branch.impact && branch.impact.loss) || 0;
+  const lossValue = Number(feedback.impact && feedback.impact.loss) || 0;
 
   consequenceModal.className = "consequence-overlay";
   consequenceModal.style.display = "flex";
@@ -1448,12 +1626,12 @@ function showConsequence() {
 
       <div class="consequence-subject">
         <div class="label">SUBJECT</div>
-        <div class="text">${branch.subject}</div>
+        <div class="text">${escapeHtml(feedback.subject)}</div>
       </div>
 
       <div class="consequence-body">
-        <p>${branch.body}</p>
-        <div class="consequence-quote">${branch.pullquote}</div>
+        <p>${escapeHtml(feedback.body)}</p>
+        <div class="consequence-quote">${escapeHtml(feedback.pullquote)}</div>
       </div>
 
       <div class="consequence-impact">
@@ -1469,7 +1647,7 @@ function showConsequence() {
           </div>
           <div class="impact-card">
             <div class="lbl">LESSON</div>
-            <div class="val val-lesson">${branch.impact && branch.impact.lesson ? branch.impact.lesson : "—"}</div>
+            <div class="val val-lesson">${escapeHtml(feedback.impact && feedback.impact.lesson ? feedback.impact.lesson : "—")}</div>
           </div>
         </div>
       </div>

@@ -2,11 +2,14 @@ const CASES = {
   easy: {
     id: "easy",
     difficulty: "Easy",
+    difficultyBlurb:
+      "Standard personal loan packet. Corroborate declarations against supporting records as filed.",
     applicant: {
       name: "Linda Walker",
       age: 21,
       civilStatus: "Single",
-      address: "Quezon City",
+      location: "Quezon City",
+      address: "Batasan Hills, Quezon City",
       employer: "StarBrew Coffee Co.",
       position: "Shift Supervisor",
       tenure: "2 years",
@@ -16,15 +19,16 @@ const CASES = {
       dependents: 0
     },
     correctVerdict: "reject",
-    briefingQuote: "Mukhang bata pa ito, pero may trabaho daw. Tingnan mo muna bago mo i-approve ha. — Ate Vivien",
+    briefingQuote:
+      "Her file looks tidy, but the age trail matters here. Check whether the public record matches the application before you release anything. - Ate Vivien",
     posts: {
       facebook: [
         {
           id: "fb1",
           platform: "facebook",
           author: "Linda Walker",
-          handle: "KevinDC",
-          meta: "March 2 · 🎂 Birthday",
+          handle: "lindawalker.official",
+          meta: "March 2 · Birthday",
           content: "",
           image: "assets/Easy/Facebook/Post 1.png",
           previewDescription:
@@ -40,7 +44,7 @@ const CASES = {
           id: "fb2",
           platform: "facebook",
           author: "Linda Walker",
-          handle: "KevinDC",
+          handle: "lindawalker.official",
           meta: "February 15 · Prom Night",
           content: "",
           image: "assets/Easy/Facebook/Post 2.png",
@@ -57,7 +61,7 @@ const CASES = {
           id: "fb3",
           platform: "facebook",
           author: "Linda Walker",
-          handle: "KevinDC",
+          handle: "lindawalker.official",
           meta: "January 8",
           content: "",
           image: "assets/Easy/Facebook/Post 3.png",
@@ -76,7 +80,7 @@ const CASES = {
           id: "ig1",
           platform: "instagram",
           author: "Linda Walker",
-          handle: "@kevindc_17",
+          handle: "@linds.walker",
           meta: "February 20",
           content: "",
           image: "assets/Easy/Instagram/Post 1.jpg",
@@ -93,7 +97,7 @@ const CASES = {
           id: "ig2",
           platform: "instagram",
           author: "Linda Walker",
-          handle: "@kevindc_17",
+          handle: "@linds.walker",
           meta: "January 30 · Throwback",
           content: "",
           image: "assets/Easy/Instagram/Post 2.jpg",
@@ -110,7 +114,7 @@ const CASES = {
           id: "ig3",
           platform: "instagram",
           author: "Linda Walker",
-          handle: "@kevindc_17",
+          handle: "@linds.walker",
           meta: "December 12",
           content: "First anime figure purchase, pinag-ipunan ko ng 3 months!",
           image: null,
@@ -127,7 +131,7 @@ const CASES = {
           id: "li1",
           platform: "linkedin",
           author: "Linda Walker",
-          handle: "Kevin Dela Cruz",
+          handle: "Shift Supervisor at StarBrew Coffee Co.",
           meta: "Started February 2026",
           content: "Started February 2026, first corporate job.",
           image: null,
@@ -142,7 +146,7 @@ const CASES = {
           id: "li2",
           platform: "linkedin",
           author: "Linda Walker",
-          handle: "Kevin Dela Cruz",
+          handle: "Senior High School Student",
           meta: "Education",
           content: "Education listed as ongoing Senior High School.",
           image: null,
@@ -159,7 +163,7 @@ const CASES = {
           id: "tw1",
           platform: "twitter",
           author: "Linda Walker",
-          handle: "@kevindc_17",
+          handle: "@linda_walks",
           meta: "March 10",
           content: "",
           image: "assets/Easy/X/X post Linda.png",
@@ -175,7 +179,7 @@ const CASES = {
           id: "tw2",
           platform: "twitter",
           author: "Linda Walker",
-          handle: "@kevindc_17",
+          handle: "@linda_walks",
           meta: "February 28",
           content: "",
           image: "assets/Easy/X/X post Linda 2.png",
@@ -190,47 +194,69 @@ const CASES = {
         }
       ]
     },
-    consequences: {
-      wrongApprove: {
-        subject: "Follow-up: Kevin Dela Cruz defaulted",
-        body: "Remember si Kevin? Turns out 17 years old pala, Grade 11 student. Missed his first payment.",
-        pullquote: "Yung birthday post niya sa Facebook, naka-display age niya. Mag-check tayo ng age consistency next time. — Ate Vivien",
-        impact: { loss: 50000, trust: -5, lesson: "Check age across platforms" }
+    followUp: {
+      correct: {
+        subjectLine: "Case closed: Linda Walker was stopped before release",
+        body:
+          "You rejected Linda Walker before funds left the wallet. The declared age and work history did not survive even a basic cross-check against her public student trail.",
+        lesson:
+          "When age, education, and employment timeline disagree, treat the contradiction as the main clue.",
+        advisorQuote:
+          "Good catch. Once the birthday trail and school references lined up, approval was off the table. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 0,
+          trustPoints: 5,
+          lessonShort: "Cross-check age with school history"
+        },
+        primaryCluePostId: "li2"
       },
-      wrongReject: {
-        subject: "Update: Kevin followed up",
-        body: "May discrepancies talaga sa application niya. Rejecting was the right call — okay lang.",
-        pullquote: "Mukhang bata talaga siya. — Ate Vivien",
-        impact: { loss: 0, trust: 3, lesson: "Good catch" }
+      wrong: {
+        subjectLine: "Follow-up: Linda Walker defaulted",
+        body:
+          "We approved Linda Walker even though her public trail still read like a student profile. The age, school, and early work-history clues should have stopped the file before disbursement.",
+        lesson:
+          "Check age and school signals across multiple platforms before trusting declared employment history.",
+        advisorQuote:
+          "Facebook and LinkedIn were already telling the same story: this applicant was not who the file claimed she was. Catch the identity mismatch before the money leaves. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 50000,
+          trustPoints: -5,
+          lessonShort: "Check age across platforms"
+        },
+        primaryCluePostId: "fb1"
       }
     }
   },
   medium: {
     id: "medium",
     difficulty: "Medium",
+    difficultyBlurb:
+      "Business facility request. Verify income, collateral, and operational consistency across uploads.",
     applicant: {
       name: "Pesto An O. Tara",
-      age: 21,
-      civilStatus: "Single",
-      address: "Quezon City",
-      employer: "StarBrew Coffee Co.",
-      position: "Shift Supervisor",
-      tenure: "2 years",
-      income: 28000,
-      loanAmount: 50000,
-      loanPurpose: "Laptop for online study",
-      dependents: 0
+      age: 24,
+      civilStatus: "Married",
+      location: "Marikina City",
+      address: "Concepcion Uno, Marikina City",
+      employer: "TeleServe Contact Center",
+      position: "Customer Support Associate",
+      tenure: "1 year 4 months",
+      income: 36000,
+      loanAmount: 120000,
+      loanPurpose: "Motorcycle for delivery side hustle",
+      dependents: 1
     },
     correctVerdict: "reject",
-    briefingQuote: "Mukhang bata pa ito, pero may trabaho daw. Tingnan mo muna bago mo i-approve ha. — Ate Vivien",
+    briefingQuote:
+      "This file sounds more mature than the easy case, but do not let the hustle story rush you. Age and work-history clues still have to line up cleanly. - Ate Vivien",
     posts: {
       facebook: [
         {
           id: "med_fb1",
           platform: "facebook",
           author: "Pesto An O. Tara",
-          handle: "KevinDC",
-          meta: "March 2 · 🎂 Birthday",
+          handle: "pesto.tara",
+          meta: "March 2 · Birthday",
           content: "",
           image: "assets/Medium/Facebook/Post 1.png",
           previewDescription:
@@ -246,7 +272,7 @@ const CASES = {
           id: "med_fb2",
           platform: "facebook",
           author: "Pesto An O. Tara",
-          handle: "KevinDC",
+          handle: "pesto.tara",
           meta: "February 15 · Prom Night",
           content: "",
           image: "assets/Medium/Facebook/Post 2.png",
@@ -263,7 +289,7 @@ const CASES = {
           id: "med_fb3",
           platform: "facebook",
           author: "Pesto An O. Tara",
-          handle: "KevinDC",
+          handle: "pesto.tara",
           meta: "January 8",
           content: "",
           image: "assets/Medium/Facebook/Post 3.png",
@@ -282,7 +308,7 @@ const CASES = {
           id: "med_ig1",
           platform: "instagram",
           author: "Pesto An O. Tara",
-          handle: "@kevindc_17",
+          handle: "@pestoann.t",
           meta: "February 20",
           content: "",
           image: "assets/Medium/Instagram/Post 1.jpg",
@@ -299,7 +325,7 @@ const CASES = {
           id: "med_ig2",
           platform: "instagram",
           author: "Pesto An O. Tara",
-          handle: "@kevindc_17",
+          handle: "@pestoann.t",
           meta: "January 30 · Throwback",
           content: "",
           image: "assets/Medium/Instagram/Post 2.jpg",
@@ -316,7 +342,7 @@ const CASES = {
           id: "med_ig3",
           platform: "instagram",
           author: "Pesto An O. Tara",
-          handle: "@kevindc_17",
+          handle: "@pestoann.t",
           meta: "December 12",
           content: "First anime figure purchase, pinag-ipunan ko ng 3 months!",
           image: null,
@@ -333,7 +359,7 @@ const CASES = {
           id: "med_li1",
           platform: "linkedin",
           author: "Pesto An O. Tara",
-          handle: "Kevin Dela Cruz",
+          handle: "Customer Support Associate at TeleServe Contact Center",
           meta: "Started February 2026",
           content: "Started February 2026, first corporate job.",
           image: null,
@@ -348,7 +374,7 @@ const CASES = {
           id: "med_li2",
           platform: "linkedin",
           author: "Pesto An O. Tara",
-          handle: "Kevin Dela Cruz",
+          handle: "Senior High School Student",
           meta: "Education",
           content: "Education listed as ongoing Senior High School.",
           image: null,
@@ -365,7 +391,7 @@ const CASES = {
           id: "med_tw1",
           platform: "twitter",
           author: "Pesto An O. Tara",
-          handle: "@kevindc_17",
+          handle: "@pestoann_t",
           meta: "March 10",
           content: "",
           image: "assets/Medium/X/X post Pesto.png",
@@ -382,7 +408,7 @@ const CASES = {
           id: "med_tw2",
           platform: "twitter",
           author: "Pesto An O. Tara",
-          handle: "@kevindc_17",
+          handle: "@pestoann_t",
           meta: "February 28",
           content: "",
           image: "assets/Medium/X/X post Pesto 2.png",
@@ -396,47 +422,69 @@ const CASES = {
         }
       ]
     },
-    consequences: {
-      wrongApprove: {
-        subject: "Follow-up: Kevin Dela Cruz defaulted",
-        body: "Remember si Kevin? Turns out 17 years old pala, Grade 11 student. Missed his first payment.",
-        pullquote: "Yung birthday post niya sa Facebook, naka-display age niya. Mag-check tayo ng age consistency next time. — Ate Vivien",
-        impact: { loss: 50000, trust: -5, lesson: "Check age across platforms" }
+    followUp: {
+      correct: {
+        subjectLine: "Case closed: Pesto An O. Tara was blocked before release",
+        body:
+          "You rejected Pesto An O. Tara before funds were released. The declared call-center profile did not match the older age markers and longer work history surfacing across the public record.",
+        lesson:
+          "A polished hustle narrative is not enough when the timeline behind it keeps changing.",
+        advisorQuote:
+          "Nice stop. This file wanted you to focus on the business vibe, but the identity timeline was the real clue. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 0,
+          trustPoints: 5,
+          lessonShort: "Verify age and work history together"
+        },
+        primaryCluePostId: "med_fb1"
       },
-      wrongReject: {
-        subject: "Update: Kevin followed up",
-        body: "May discrepancies talaga sa application niya. Rejecting was the right call — okay lang.",
-        pullquote: "Mukhang bata talaga siya. — Ate Vivien",
-        impact: { loss: 0, trust: 3, lesson: "Good catch" }
+      wrong: {
+        subjectLine: "Follow-up: Pesto An O. Tara went delinquent",
+        body:
+          "We approved a file whose online footprint already conflicted with the declared age and work history. The business story felt active, but the identity timeline did not hold up.",
+        lesson:
+          "Cross-check age and work history together, not just the applicant's lifestyle story.",
+        advisorQuote:
+          "The file looked busy, but the timeline was doing the talking. When the age and employment story drift apart, slow the approval down. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 120000,
+          trustPoints: -5,
+          lessonShort: "Cross-check age and work history"
+        },
+        primaryCluePostId: "med_tw1"
       }
     }
   },
   hard: {
     id: "hard",
     difficulty: "Hard",
+    difficultyBlurb:
+      "Unsecured loan with a busy file. Cross-check timeline, employment, and public footprint for alignment.",
     applicant: {
       name: "Wai Fai Ni Piter",
-      age: 21,
+      age: 22,
       civilStatus: "Single",
-      address: "Quezon City",
-      employer: "StarBrew Coffee Co.",
-      position: "Shift Supervisor",
-      tenure: "2 years",
-      income: 28000,
-      loanAmount: 50000,
-      loanPurpose: "Laptop for online study",
-      dependents: 0
+      location: "Tarlac City",
+      address: "San Rafael, Tarlac City",
+      employer: "Nimbus Digital Services",
+      position: "Content Moderator",
+      tenure: "2 years 6 months",
+      income: 47000,
+      loanAmount: 180000,
+      loanPurpose: "Home office computer upgrade",
+      dependents: 2
     },
     correctVerdict: "reject",
-    briefingQuote: "Mukhang bata pa ito, pero may trabaho daw. Tingnan mo muna bago mo i-approve ha. — Ate Vivien",
+    briefingQuote:
+      "Hard cases hide the real issue inside a noisy feed. Stay patient and pin only the contradictions that actually break the declared story. - Ate Vivien",
     posts: {
       facebook: [
         {
           id: "hard_fb1",
           platform: "facebook",
           author: "Wai Fai Ni Piter",
-          handle: "KevinDC",
-          meta: "March 2 · 🎂 Birthday",
+          handle: "waifainipiter",
+          meta: "March 2 · Birthday",
           content: "",
           image: "assets/Hard/Facebook/Post 1.png",
           previewDescription:
@@ -452,7 +500,7 @@ const CASES = {
           id: "hard_fb2",
           platform: "facebook",
           author: "Wai Fai Ni Piter",
-          handle: "KevinDC",
+          handle: "waifainipiter",
           meta: "February 15 · Prom Night",
           content: "",
           image: "assets/Hard/Facebook/Post 2.png",
@@ -469,7 +517,7 @@ const CASES = {
           id: "hard_fb3",
           platform: "facebook",
           author: "Wai Fai Ni Piter",
-          handle: "KevinDC",
+          handle: "waifainipiter",
           meta: "January 8",
           content: "",
           image: "assets/Hard/Facebook/Post 3.png",
@@ -488,7 +536,7 @@ const CASES = {
           id: "hard_ig1",
           platform: "instagram",
           author: "Wai Fai Ni Piter",
-          handle: "@kevindc_17",
+          handle: "@waifai.piter",
           meta: "February 20",
           content: "",
           image: "assets/Hard/Instagram/Post 1.jpg",
@@ -505,7 +553,7 @@ const CASES = {
           id: "hard_ig2",
           platform: "instagram",
           author: "Wai Fai Ni Piter",
-          handle: "@kevindc_17",
+          handle: "@waifai.piter",
           meta: "January 30 · Throwback",
           content: "",
           image: "assets/Hard/Instagram/Post 2.jpg",
@@ -522,7 +570,7 @@ const CASES = {
           id: "hard_ig3",
           platform: "instagram",
           author: "Wai Fai Ni Piter",
-          handle: "@kevindc_17",
+          handle: "@waifai.piter",
           meta: "December 12",
           content: "First anime figure purchase, pinag-ipunan ko ng 3 months!",
           image: null,
@@ -539,7 +587,7 @@ const CASES = {
           id: "hard_li1",
           platform: "linkedin",
           author: "Wai Fai Ni Piter",
-          handle: "Kevin Dela Cruz",
+          handle: "Content Moderator at Nimbus Digital Services",
           meta: "Started February 2026",
           content: "Started February 2026, first corporate job.",
           image: null,
@@ -554,7 +602,7 @@ const CASES = {
           id: "hard_li2",
           platform: "linkedin",
           author: "Wai Fai Ni Piter",
-          handle: "Kevin Dela Cruz",
+          handle: "Senior High School Student",
           meta: "Education",
           content: "Education listed as ongoing Senior High School.",
           image: null,
@@ -571,7 +619,7 @@ const CASES = {
           id: "hard_tw1",
           platform: "twitter",
           author: "Wai Fai Ni Piter",
-          handle: "@kevindc_17",
+          handle: "@wai_fai_p",
           meta: "March 10",
           content: "",
           image: "assets/Hard/X/X post Wai Fi.png",
@@ -587,7 +635,7 @@ const CASES = {
           id: "hard_tw2",
           platform: "twitter",
           author: "Wai Fai Ni Piter",
-          handle: "@kevindc_17",
+          handle: "@wai_fai_p",
           meta: "February 28",
           content: "",
           image: "assets/Hard/X/X post Wai Fi 2.png",
@@ -601,47 +649,69 @@ const CASES = {
         }
       ]
     },
-    consequences: {
-      wrongApprove: {
-        subject: "Follow-up: Kevin Dela Cruz defaulted",
-        body: "Remember si Kevin? Turns out 17 years old pala, Grade 11 student. Missed his first payment.",
-        pullquote: "Yung birthday post niya sa Facebook, naka-display age niya. Mag-check tayo ng age consistency next time. — Ate Vivien",
-        impact: { loss: 50000, trust: -5, lesson: "Check age across platforms" }
+    followUp: {
+      correct: {
+        subjectLine: "Case closed: Wai Fai Ni Piter was blocked before release",
+        body:
+          "You rejected Wai Fai Ni Piter before the unsecured loan was released. The declared profile looked polished, but the identity and education trail never aligned with the application.",
+        lesson:
+          "Busy feeds can distract you, so anchor the verdict on the contradiction that breaks the file.",
+        advisorQuote:
+          "That was the right call. Once the profile and education record stopped agreeing, the rest of the noise did not matter. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 0,
+          trustPoints: 5,
+          lessonShort: "Anchor the verdict on the file mismatch"
+        },
+        primaryCluePostId: "hard_li2"
       },
-      wrongReject: {
-        subject: "Update: Kevin followed up",
-        body: "May discrepancies talaga sa application niya. Rejecting was the right call — okay lang.",
-        pullquote: "Mukhang bata talaga siya. — Ate Vivien",
-        impact: { loss: 0, trust: 3, lesson: "Good catch" }
+      wrong: {
+        subjectLine: "Follow-up: Wai Fai Ni Piter defaulted",
+        body:
+          "We approved Wai Fai Ni Piter even though the profile carried identity and education inconsistencies. The public trail looked polished, but the declared background still failed basic verification.",
+        lesson:
+          "Verify identity details underneath polished social presence before trusting the file.",
+        advisorQuote:
+          "A polished feed is not a clean file. The contradiction was there; we just needed to stay focused on it. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 180000,
+          trustPoints: -5,
+          lessonShort: "Verify identity beneath the polish"
+        },
+        primaryCluePostId: "hard_fb1"
       }
     }
   },
   extreme: {
     id: "extreme",
     difficulty: "Extreme",
+    difficultyBlurb:
+      "High-volume dossier with extensive attachments. Review methodically before stamping a verdict.",
     applicant: {
       name: "Ha Uac M. Angbit",
-      age: 21,
-      civilStatus: "Single",
-      address: "Quezon City",
-      employer: "StarBrew Coffee Co.",
-      position: "Shift Supervisor",
-      tenure: "2 years",
-      income: 28000,
-      loanAmount: 50000,
-      loanPurpose: "Laptop for online study",
-      dependents: 0
+      age: 29,
+      civilStatus: "Married",
+      location: "Pasig City",
+      address: "Rosario, Pasig City",
+      employer: "Northgate Engineering Services",
+      position: "Project Coordinator",
+      tenure: "4 years",
+      income: 68000,
+      loanAmount: 250000,
+      loanPurpose: "Tuition buffer and family expenses",
+      dependents: 3
     },
     correctVerdict: "reject",
-    briefingQuote: "Mukhang bata pa ito, pero may trabaho daw. Tingnan mo muna bago mo i-approve ha. — Ate Vivien",
+    briefingQuote:
+      "Extreme files try to overwhelm you with volume. Slow the case down and verify the core identity before anything else. - Ate Vivien",
     posts: {
       facebook: [
         {
           id: "ext_fb1",
           platform: "facebook",
           author: "Ha Uac M. Angbit",
-          handle: "KevinDC",
-          meta: "March 2 · 🎂 Birthday",
+          handle: "huac.angbit",
+          meta: "March 2 · Birthday",
           content: "",
           image: "assets/Extreme/Facebook/Post 1.png",
           previewDescription:
@@ -657,7 +727,7 @@ const CASES = {
           id: "ext_fb2",
           platform: "facebook",
           author: "Ha Uac M. Angbit",
-          handle: "KevinDC",
+          handle: "huac.angbit",
           meta: "February 15 · Prom Night",
           content: "",
           image: "assets/Extreme/Facebook/Post 2.png",
@@ -674,7 +744,7 @@ const CASES = {
           id: "ext_fb3",
           platform: "facebook",
           author: "Ha Uac M. Angbit",
-          handle: "KevinDC",
+          handle: "huac.angbit",
           meta: "January 8",
           content: "",
           image: "assets/Extreme/Facebook/Post 3.png",
@@ -693,7 +763,7 @@ const CASES = {
           id: "ext_ig1",
           platform: "instagram",
           author: "Ha Uac M. Angbit",
-          handle: "@kevindc_17",
+          handle: "@huac.angbit",
           meta: "February 20",
           content: "",
           image: "assets/Extreme/Instagram/Post 1.jpg",
@@ -710,7 +780,7 @@ const CASES = {
           id: "ext_ig2",
           platform: "instagram",
           author: "Ha Uac M. Angbit",
-          handle: "@kevindc_17",
+          handle: "@huac.angbit",
           meta: "January 30 · Throwback",
           content: "",
           image: "assets/Extreme/Instagram/Post 2.jpg",
@@ -727,7 +797,7 @@ const CASES = {
           id: "ext_ig3",
           platform: "instagram",
           author: "Ha Uac M. Angbit",
-          handle: "@kevindc_17",
+          handle: "@huac.angbit",
           meta: "December 12",
           content: "First anime figure purchase, pinag-ipunan ko ng 3 months!",
           image: null,
@@ -744,7 +814,7 @@ const CASES = {
           id: "ext_li1",
           platform: "linkedin",
           author: "Ha Uac M. Angbit",
-          handle: "Kevin Dela Cruz",
+          handle: "Project Coordinator at Northgate Engineering Services",
           meta: "Started February 2026",
           content: "Started February 2026, first corporate job.",
           image: null,
@@ -759,7 +829,7 @@ const CASES = {
           id: "ext_li2",
           platform: "linkedin",
           author: "Ha Uac M. Angbit",
-          handle: "Kevin Dela Cruz",
+          handle: "Senior High School Student",
           meta: "Education",
           content: "Education listed as ongoing Senior High School.",
           image: null,
@@ -776,7 +846,7 @@ const CASES = {
           id: "ext_tw1",
           platform: "twitter",
           author: "Ha Uac M. Angbit",
-          handle: "@kevindc_17",
+          handle: "@huac_angbit",
           meta: "March 10",
           content: "",
           image: "assets/Extreme/X/X post Ha Uac.png",
@@ -793,7 +863,7 @@ const CASES = {
           id: "ext_tw2",
           platform: "twitter",
           author: "Ha Uac M. Angbit",
-          handle: "@kevindc_17",
+          handle: "@huac_angbit",
           meta: "February 28",
           content: "",
           image: "assets/Extreme/X/X post Ha Uac 2.png",
@@ -808,18 +878,36 @@ const CASES = {
         }
       ]
     },
-    consequences: {
-      wrongApprove: {
-        subject: "Follow-up: Kevin Dela Cruz defaulted",
-        body: "Remember si Kevin? Turns out 17 years old pala, Grade 11 student. Missed his first payment.",
-        pullquote: "Yung birthday post niya sa Facebook, naka-display age niya. Mag-check tayo ng age consistency next time. — Ate Vivien",
-        impact: { loss: 50000, trust: -5, lesson: "Check age across platforms" }
+    followUp: {
+      correct: {
+        subjectLine: "Case closed: Ha Uac M. Angbit was blocked before release",
+        body:
+          "You rejected Ha Uac M. Angbit before a large disbursement was released. The dense file tried to bury the issue, but the core identity trail still collapsed under review.",
+        lesson:
+          "When a file is dense, slow down and verify the identity spine before you chase secondary signals.",
+        advisorQuote:
+          "That is how you handle an extreme file: find the core contradiction, then ignore the clutter around it. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 0,
+          trustPoints: 5,
+          lessonShort: "Validate identity before volume overwhelms you"
+        },
+        primaryCluePostId: "ext_fb1"
       },
-      wrongReject: {
-        subject: "Update: Kevin followed up",
-        body: "May discrepancies talaga sa application niya. Rejecting was the right call — okay lang.",
-        pullquote: "Mukhang bata talega siya. — Ate Vivien",
-        impact: { loss: 0, trust: 3, lesson: "Good catch" }
+      wrong: {
+        subjectLine: "Follow-up: Ha Uac M. Angbit defaulted",
+        body:
+          "We approved a high-volume file even though the identity trail was inconsistent from the start. Extreme cases need slower verification, especially when age and lifestyle signals pull in different directions.",
+        lesson:
+          "Slow down on dense files and validate the core identity before trusting the rest of the dossier.",
+        advisorQuote:
+          "Volume is not evidence. The file threw a lot at us, but the identity mismatch was still the deciding clue. - Ate Vivien",
+        impactReport: {
+          defaultLoss: 250000,
+          trustPoints: -5,
+          lessonShort: "Slow down and verify the identity core"
+        },
+        primaryCluePostId: "ext_fb1"
       }
     }
   }
