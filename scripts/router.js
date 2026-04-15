@@ -1,4 +1,11 @@
 function showScreen(screenName) {
+  if (state.currentScreen === "nameGate" && screenName !== "nameGate") {
+    clearNameGateTerminal();
+  }
+  if (state.currentScreen === "onboarding" && screenName !== "onboarding") {
+    clearOnboardingInteractions();
+  }
+
   const screens = document.querySelectorAll(".screen");
   screens.forEach(function hideScreen(screenEl) {
     screenEl.classList.remove("active");
@@ -36,6 +43,12 @@ function onScreenEnter(screenName) {
     case "leaderboard":
       renderLeaderboard();
       break;
+    case "onboarding":
+      renderOnboarding();
+      break;
+    case "nameGate":
+      renderNameGate();
+      break;
     default:
       break;
   }
@@ -57,8 +70,108 @@ function formatCurrency(amount) {
   return "₱" + value.toLocaleString("en-PH");
 }
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 const EVIDENCE_PREVIEW_PLACEHOLDER = "assets/evidence-placeholder.png";
 let pinPanelHideTimer = null;
+
+const NAME_GATE_LOG_POOL = [
+  "Case index 01-A loaded.",
+  "Cross-matching regional records.",
+  "Identity markers are being verified.",
+  "Clearance handshake initialized.",
+  "Audit trail locked for this session.",
+  "Evidence matrix synced to terminal.",
+  "Risk profile checksum validated.",
+  "Awaiting analyst credentials input.",
+  "Monitoring channel integrity.",
+  "Secure archive gateway ready."
+];
+
+const ONBOARDING_SLIDES = [
+  {
+    icon: "🗂️",
+    headline: "Welcome, Investigator",
+    body: "Step into the world of loan investigation. You are a loan officer at Algo Pay reviewing real-looking applications and checking whether applicants are telling the truth."
+  },
+  {
+    icon: "📄",
+    headline: "Read the Case File",
+    body: "Open the folder. Each case starts with an applicant profile: name, age, job, income, loan amount, and purpose. Read carefully. This is what they claim to be true."
+  },
+  {
+    icon: "🌐",
+    headline: "Investigate 4 Platforms",
+    body: "Follow the digital footprint. Check their Facebook, Instagram, LinkedIn, and Twitter/X. Each platform reveals a different part of the story: work history, lifestyle, relationships, and behavior.",
+    platforms: ["Facebook", "Instagram", "LinkedIn", "Twitter/X"]
+  },
+  {
+    icon: "📌",
+    headline: "Collect Evidence, Avoid Red Herrings",
+    body: "Pin the suspicious posts. Some posts look suspicious but are actually innocent jokes, old posts, or sarcasm. Wrong evidence means point penalties."
+  },
+  {
+    icon: "⚖️",
+    headline: "Submit Your Verdict",
+    body: "Make your decision. Choose Approve or Reject, then support that verdict with strong evidence. Your decision and evidence quality determine your score."
+  },
+  {
+    icon: "🏅",
+    headline: "Learn & Rank Up",
+    body: "Every case has a lesson. Get scored on evidence quality and verdict accuracy, see the consequence of your decision, and climb from Trainee Analyst to Chief Risk Officer.",
+    cta: "Next: Read the FAQs →"
+  }
+];
+
+const ONBOARDING_FAQS = [
+  {
+    question: "Why does this game exist?",
+    answer: "To flip the perspective. By putting you in the investigator's seat, you'll see how exposed your own digital life really is - and why that should concern you."
+  },
+  {
+    question: "Do loan companies really lurk on social media?",
+    answer: "Yes - and so does almost everyone else:\n\nHiring managers, insurance companies, and background checkers screen candidates this way.\nSome predatory lending apps have been caught scraping contacts and using public posts to harass borrowers."
+  },
+  {
+    question: "What kind of data can actually be pulled from my digital footprint?",
+    answer: "More than you'd expect:\n\nLocation tags, check-ins, and photos reveal where you live, work, and spend money.\nOld posts, job titles, and complaints can be cross-referenced to build a full profile of your life and finances."
+  },
+  {
+    question: "Who could use this against me?",
+    answer: "Anyone with time, motive, and an internet connection:\n\nHiring managers, hackers, scammers, and predatory lenders.\nStalkers, ex-partners, and opposition researchers."
+  },
+  {
+    question: "How can I protect myself?",
+    answer: "Assume everything you post is public and permanent:\n\nAudit old posts, don't geotag your home, and never share photos of IDs or documents.\nBe skeptical of any app that demands access to your contact list."
+  }
+];
+
+let nameGateTerminalInterval = null;
+let nameGateLogOffset = 0;
+let onboardingActiveTab = "how-to-play";
+let onboardingSlideIndex = 0;
+let onboardingExpandedFaq = -1;
+let onboardingKeyHandler = null;
+
+function clearNameGateTerminal() {
+  if (nameGateTerminalInterval !== null) {
+    clearInterval(nameGateTerminalInterval);
+    nameGateTerminalInterval = null;
+  }
+}
+
+function clearOnboardingInteractions() {
+  if (onboardingKeyHandler) {
+    document.removeEventListener("keydown", onboardingKeyHandler);
+    onboardingKeyHandler = null;
+  }
+}
 
 if (typeof Image !== "undefined") {
   const evidencePreviewPreload = new Image();
@@ -71,9 +184,304 @@ function getBestTime(difficulty) {
   return formatTime(board[0].time);
 }
 
+function setOnboardingTab(tabName) {
+  onboardingActiveTab = tabName;
+  renderOnboarding();
+}
+
+function setOnboardingSlide(index) {
+  const maxIndex = ONBOARDING_SLIDES.length - 1;
+  onboardingSlideIndex = Math.max(0, Math.min(maxIndex, index));
+  renderOnboarding();
+}
+
+function toggleOnboardingFaq(index) {
+  onboardingExpandedFaq = onboardingExpandedFaq === index ? -1 : index;
+  renderOnboarding();
+}
+
+function renderOnboarding() {
+  const onboardingScreen = document.getElementById("screen-onboarding");
+  if (!onboardingScreen) return;
+
+  clearOnboardingInteractions();
+
+  const hasSeenOnboarding = localStorage.getItem("algopay_onboarded") === "1";
+  const slideCount = ONBOARDING_SLIDES.length;
+  const safeSlideIndex = Math.max(0, Math.min(slideCount - 1, onboardingSlideIndex));
+  onboardingSlideIndex = safeSlideIndex;
+
+  const slideMarkup = ONBOARDING_SLIDES.map(function mapSlide(slide) {
+    const platformMarkup = Array.isArray(slide.platforms)
+      ? `
+          <div class="onboarding-slide-platforms">
+            ${slide.platforms
+              .map(function mapPlatform(platform) {
+                return `<span class="onboarding-platform-badge">${platform}</span>`;
+              })
+              .join("")}
+          </div>
+        `
+      : "";
+
+    const ctaMarkup = slide.cta
+      ? `<button type="button" class="btn-secondary onboarding-slide-cta" data-onboarding-action="show-faqs">${slide.cta}</button>`
+      : "";
+
+    return `
+      <section class="onboarding-slide" aria-roledescription="slide">
+        <div class="onboarding-slide-icon" aria-hidden="true">${slide.icon}</div>
+        <h2 class="onboarding-slide-headline">${slide.headline}</h2>
+        <p class="onboarding-slide-body">${slide.body}</p>
+        ${platformMarkup}
+        ${ctaMarkup}
+      </section>
+    `;
+  }).join("");
+
+  const dotsMarkup = ONBOARDING_SLIDES.map(function mapDot(_, index) {
+    const isActive = index === onboardingSlideIndex;
+    return `
+      <button
+        type="button"
+        class="onboarding-dot ${isActive ? "active" : ""}"
+        data-onboarding-dot="${index}"
+        aria-label="Go to slide ${index + 1}"
+        aria-pressed="${isActive ? "true" : "false"}"
+      ></button>
+    `;
+  }).join("");
+
+  const faqMarkup = ONBOARDING_FAQS.map(function mapFaq(faq, index) {
+    const isExpanded = onboardingExpandedFaq === index;
+    const answerParagraphs = faq.answer
+      .split("\n\n")
+      .map(function mapParagraph(paragraph) {
+        return `<p>${paragraph}</p>`;
+      })
+      .join("");
+
+    return `
+      <div class="onboarding-faq ${isExpanded ? "expanded" : ""}">
+        <button
+          type="button"
+          class="onboarding-faq-q"
+          data-onboarding-faq="${index}"
+          aria-expanded="${isExpanded ? "true" : "false"}"
+        >
+          <span>${faq.question}</span>
+          <span class="onboarding-faq-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div class="onboarding-faq-a">
+          <div class="onboarding-faq-a-inner">
+            ${answerParagraphs}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  onboardingScreen.innerHTML = `
+    <div class="onboarding">
+      <div class="onboarding-shell">
+        <div class="onboarding-header">
+          <div>
+            ${hasSeenOnboarding
+              ? '<button type="button" class="onboarding-skip" data-onboarding-action="skip">Skip to menu</button>'
+              : ""}
+          </div>
+          <div class="onboarding-tabs" role="tablist" aria-label="Onboarding sections">
+            <button
+              type="button"
+              class="onboarding-tab ${onboardingActiveTab === "how-to-play" ? "active" : ""}"
+              role="tab"
+              aria-selected="${onboardingActiveTab === "how-to-play" ? "true" : "false"}"
+              data-onboarding-tab="how-to-play"
+            >How To Play</button>
+            <button
+              type="button"
+              class="onboarding-tab ${onboardingActiveTab === "faqs" ? "active" : ""}"
+              role="tab"
+              aria-selected="${onboardingActiveTab === "faqs" ? "true" : "false"}"
+              data-onboarding-tab="faqs"
+            >FAQs</button>
+          </div>
+        </div>
+
+        <div class="onboarding-panel">
+          ${onboardingActiveTab === "how-to-play"
+            ? `
+              <div class="onboarding-carousel">
+                <div class="onboarding-slide-num">${onboardingSlideIndex + 1} / ${slideCount}</div>
+                <div class="onboarding-viewport">
+                  <div class="onboarding-track" style="transform: translateX(-${onboardingSlideIndex * 100}%);">
+                    ${slideMarkup}
+                  </div>
+                </div>
+                <div class="onboarding-controls">
+                  <button
+                    type="button"
+                    class="onboarding-arrow"
+                    data-onboarding-action="prev"
+                    aria-label="Previous slide"
+                    ${onboardingSlideIndex === 0 ? "disabled" : ""}
+                  >‹</button>
+                  <div class="onboarding-dots">${dotsMarkup}</div>
+                  <button
+                    type="button"
+                    class="onboarding-arrow"
+                    data-onboarding-action="next"
+                    aria-label="Next slide"
+                  >›</button>
+                </div>
+              </div>
+            `
+            : `
+              <div class="onboarding-faqs">
+                ${faqMarkup}
+                <div class="onboarding-footer">
+                  <button type="button" class="btn-primary onboarding-cta" data-onboarding-action="start">
+                    Start Investigation →
+                  </button>
+                </div>
+              </div>
+            `}
+        </div>
+      </div>
+    </div>
+  `;
+
+  onboardingScreen.querySelectorAll("[data-onboarding-tab]").forEach(function bindTab(button) {
+    button.addEventListener("click", function onTabClick() {
+      setOnboardingTab(button.getAttribute("data-onboarding-tab"));
+    });
+  });
+
+  onboardingScreen.querySelectorAll("[data-onboarding-dot]").forEach(function bindDot(button) {
+    button.addEventListener("click", function onDotClick() {
+      setOnboardingSlide(Number(button.getAttribute("data-onboarding-dot")) || 0);
+    });
+  });
+
+  onboardingScreen.querySelectorAll("[data-onboarding-faq]").forEach(function bindFaq(button) {
+    button.addEventListener("click", function onFaqClick() {
+      toggleOnboardingFaq(Number(button.getAttribute("data-onboarding-faq")) || 0);
+    });
+  });
+
+  onboardingScreen.querySelectorAll("[data-onboarding-action]").forEach(function bindAction(button) {
+    button.addEventListener("click", function onActionClick() {
+      const action = button.getAttribute("data-onboarding-action");
+      if (action === "prev") {
+        setOnboardingSlide(onboardingSlideIndex - 1);
+      } else if (action === "next") {
+        setOnboardingSlide(onboardingSlideIndex + 1);
+      } else if (action === "show-faqs") {
+        onboardingExpandedFaq = -1;
+        setOnboardingTab("faqs");
+      } else if (action === "skip") {
+        showScreen("home");
+      } else if (action === "start") {
+        localStorage.setItem("algopay_onboarded", "1");
+        showScreen("home");
+      }
+    });
+  });
+
+  if (onboardingActiveTab === "how-to-play") {
+    onboardingKeyHandler = function handleOnboardingKeys(event) {
+      if (state.currentScreen !== "onboarding" || onboardingActiveTab !== "how-to-play") return;
+      const tag = event.target && event.target.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        setOnboardingSlide(onboardingSlideIndex - 1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        setOnboardingSlide(onboardingSlideIndex + 1);
+      }
+    };
+    document.addEventListener("keydown", onboardingKeyHandler);
+  }
+}
+
+function renderNameGate() {
+  const gateScreen = document.getElementById("screen-nameGate");
+  if (!gateScreen) return;
+
+  clearNameGateTerminal();
+  nameGateLogOffset = 0;
+
+  const lines = [];
+  for (let i = 0; i < 8; i += 1) {
+    const lineText = "> " + NAME_GATE_LOG_POOL[(nameGateLogOffset + i) % NAME_GATE_LOG_POOL.length];
+    lines.push('<div class="typewriter-line">' + lineText + "</div>");
+  }
+
+  gateScreen.innerHTML = `
+    <div class="name-gate">
+      <div class="name-gate-overlay"></div>
+      <div class="name-gate-watermark">
+        <span>CASE FILE 01-A</span>
+        <span>CASE FILE 01-A</span>
+        <span>CASE FILE 01-A</span>
+        <span>CASE FILE 01-A</span>
+      </div>
+      <div class="name-gate-terminal" aria-hidden="true">
+        ${lines.join("")}
+      </div>
+      <div class="name-gate-panel">
+        <img class="name-gate-logo" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
+        <p class="name-gate-caption">Investigator access</p>
+        <form id="nameGateForm" class="name-gate-form">
+          <label class="name-gate-label" for="nameGateInput">Enter your name</label>
+          <input id="nameGateInput" class="name-gate-input" type="text" name="playerName" placeholder="Analyst name" maxlength="20" required autocomplete="name">
+          <button type="submit" class="btn-primary name-gate-btn">Continue</button>
+        </form>
+      </div>
+    </div>
+  `;
+
+  const form = document.getElementById("nameGateForm");
+  const input = document.getElementById("nameGateInput");
+  if (input) {
+    if (state.playerName) {
+      input.value = state.playerName;
+    }
+    input.focus();
+  }
+
+  if (form) {
+    form.addEventListener("submit", function onNameGateSubmit(event) {
+      event.preventDefault();
+      const raw = input && typeof input.value === "string" ? input.value.trim() : "";
+      state.playerName = (raw || "Player").slice(0, 20);
+      window.savePlayerProfile();
+      clearNameGateTerminal();
+      onboardingActiveTab = "how-to-play";
+      onboardingSlideIndex = 0;
+      onboardingExpandedFaq = -1;
+      showScreen("onboarding");
+    });
+  }
+
+  nameGateTerminalInterval = setInterval(function rotateNameGateLog() {
+    nameGateLogOffset = (nameGateLogOffset + 1) % NAME_GATE_LOG_POOL.length;
+    const lineEls = gateScreen.querySelectorAll(".typewriter-line");
+    for (let j = 0; j < lineEls.length; j += 1) {
+      lineEls[j].textContent = "> " + NAME_GATE_LOG_POOL[(nameGateLogOffset + j) % NAME_GATE_LOG_POOL.length];
+    }
+  }, 2700);
+}
+
 function renderHome() {
   const homeScreen = document.getElementById("screen-home");
   if (!homeScreen) return;
+
+  const welcomeName = escapeHtml(
+    (state.playerName && String(state.playerName).trim()) || "Agent"
+  );
 
   homeScreen.innerHTML = `
     <div class="top-actions">
@@ -81,12 +489,13 @@ function renderHome() {
         <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
       </div>
       <div class="nav-links">
-        <button class="nav-link" onclick="showScreen('home')">Home</button>
+        <button class="nav-link" onclick="showScreen('nameGate')">Home</button>
         <button class="nav-link" onclick="showScreen('leaderboard')">Leaderboard</button>
       </div>
     </div>
 
-    <div class="home">
+      <div class="home home--with-welcome">
+      <p class="home-welcome">Hi, ${welcomeName}</p>
       <h1>LOAN INVESTIGATOR</h1>
       <p class="tagline">Catch the liar before you approve the loan.</p>
 
@@ -120,7 +529,7 @@ function renderDifficulty() {
         <img class="logo-mark" src="assets/OfficialLogo_AlgoPay.svg" alt="AlgoPay">
       </div>
       <div class="nav-links">
-        <button class="nav-link" onclick="showScreen('home')">Home</button>
+        <button class="nav-link" onclick="showScreen('nameGate')">Home</button>
         <button class="nav-link" onclick="showScreen('leaderboard')">Leaderboard</button>
       </div>
     </div>
@@ -457,9 +866,7 @@ function calculateAndShowScore() {
   state.casesClosed += 1;
 
   if (!state.playerName) {
-    const rawName = prompt("Enter your name for the leaderboard:", "Player");
-    const cleanedName = typeof rawName === "string" ? rawName.trim() : "";
-    state.playerName = (cleanedName || "Player").slice(0, 20);
+    state.playerName = "Player";
   }
 
   window.addLeaderboardEntry(
@@ -538,7 +945,7 @@ function renderScore(breakdown, isCorrect) {
 
       <div class="score-actions">
         <button class="btn-secondary" onclick="showScreen('leaderboard')">VIEW LEADERBOARD</button>
-        <button class="btn-primary" onclick="showScreen('home')">BACK TO HOME</button>
+        <button class="btn-primary" onclick="showScreen('nameGate')">BACK TO HOME</button>
       </div>
     </div>
   `;
@@ -597,7 +1004,7 @@ function renderLeaderboard() {
         ${listMarkup}
       </div>
       <div class="score-actions">
-        <button class="btn-primary" onclick="showScreen('home')">BACK TO HOME</button>
+        <button class="btn-primary" onclick="showScreen('nameGate')">BACK TO HOME</button>
       </div>
     </div>
   `;

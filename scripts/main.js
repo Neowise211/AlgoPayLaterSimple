@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", function onReady() {
   state.leaderboards = loadLeaderboards();
 
   app.innerHTML = `
+    <div id="screen-nameGate" class="screen"></div>
+    <div id="screen-onboarding" class="screen"></div>
     <div id="screen-home" class="screen"></div>
     <div id="screen-difficulty" class="screen"></div>
     <div id="screen-briefing" class="screen"></div>
@@ -16,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function onReady() {
     <div id="screen-leaderboard" class="screen"></div>
   `;
 
-  showScreen("home");
+  showScreen("nameGate");
 
   document.addEventListener("keydown", function handlePinPanelKeys(event) {
     const pinPanel = document.getElementById("pinPanel");
