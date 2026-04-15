@@ -4,6 +4,25 @@ document.addEventListener("DOMContentLoaded", function onReady() {
 
   console.log("AlgoPay Loan Investigator vBackup loaded");
 
+  let bgmStarted = false;
+  const bgmVideo = document.getElementById("bgmVideo");
+  if (bgmVideo) {
+    bgmVideo.loop = true;
+    bgmVideo.volume = 0.35;
+    bgmVideo.setAttribute("playsinline", "");
+  }
+
+  window.startBackgroundMusic = function startBackgroundMusic() {
+    if (bgmStarted || !bgmVideo) return;
+    bgmStarted = true;
+    const playPromise = bgmVideo.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(function onBgmPlayFailed() {
+        bgmStarted = false;
+      });
+    }
+  };
+
   state.leaderboards = loadLeaderboards();
 
   app.innerHTML = `

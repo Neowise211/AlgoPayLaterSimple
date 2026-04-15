@@ -2817,3 +2817,16 @@ button:focus-visible {
     min-width: 0;
   }
 }
+
+/* INVENTED — not in design-reference.html, follows vibe; audio-only background track element */
+.bgm-video {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}

@@ -485,6 +485,9 @@ function renderNameGate() {
       const raw = input && typeof input.value === "string" ? input.value.trim() : "";
       state.playerName = (raw || "Player").slice(0, 20);
       window.savePlayerProfile();
+      if (typeof window.startBackgroundMusic === "function") {
+        window.startBackgroundMusic();
+      }
       clearNameGateTerminal();
       onboardingActiveTab = "how-to-play";
       onboardingSlideIndex = 0;
