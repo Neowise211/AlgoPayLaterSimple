@@ -22,11 +22,22 @@ function loadLeaderboards() {
     const raw = localStorage.getItem("algopay_lb");
     if (!raw) return empty;
     const parsed = JSON.parse(raw);
+    function normalizeEntries(entries) {
+      if (!Array.isArray(entries)) return [];
+      return entries.map(function normalizeEntry(entry) {
+        return {
+          name: entry && typeof entry.name === "string" ? entry.name : "Player",
+          score: Number(entry && entry.score) || 0,
+          casesClosed: Number(entry && entry.casesClosed) || 0,
+          time: Number(entry && entry.time) || 0
+        };
+      });
+    }
     return {
-      easy: Array.isArray(parsed.easy) ? parsed.easy : [],
-      medium: Array.isArray(parsed.medium) ? parsed.medium : [],
-      hard: Array.isArray(parsed.hard) ? parsed.hard : [],
-      extreme: Array.isArray(parsed.extreme) ? parsed.extreme : []
+      easy: normalizeEntries(parsed.easy),
+      medium: normalizeEntries(parsed.medium),
+      hard: normalizeEntries(parsed.hard),
+      extreme: normalizeEntries(parsed.extreme)
     };
   } catch (error) {
     return empty;
@@ -45,6 +56,7 @@ function addLeaderboardEntry(difficulty, name, score, time) {
   state.leaderboards[difficulty].push({
     name,
     score,
+    casesClosed: state.casesClosed,
     time
   });
 

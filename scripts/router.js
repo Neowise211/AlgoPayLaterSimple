@@ -159,6 +159,20 @@ let onboardingSlideIndex = 0;
 let onboardingExpandedFaq = -1;
 let onboardingKeyHandler = null;
 
+function animateValue(obj, start, end, duration) {
+  let startTimestamp = null;
+  const step = function animateStep(timestamp) {
+    if (!obj || !document.body.contains(obj)) return;
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    obj.innerHTML = Math.floor(progress * (end - start) + start);
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    }
+  };
+  window.requestAnimationFrame(step);
+}
+
 function clearNameGateTerminal() {
   if (nameGateTerminalInterval !== null) {
     clearInterval(nameGateTerminalInterval);
@@ -439,6 +453,10 @@ function renderNameGate() {
           <input id="nameGateInput" class="name-gate-input" type="text" name="playerName" placeholder="Analyst name" maxlength="20" required autocomplete="name">
           <button type="submit" class="btn-primary name-gate-btn">Continue</button>
         </form>
+        <div class="name-gate-stat">
+          <div class="name-gate-stat-label">Total Cases Closed</div>
+          <div class="name-gate-stat-value" id="nameGateCasesClosed">0</div>
+        </div>
       </div>
     </div>
   `;
@@ -464,6 +482,11 @@ function renderNameGate() {
       onboardingExpandedFaq = -1;
       showScreen("onboarding");
     });
+  }
+
+  const casesClosedEl = document.getElementById("nameGateCasesClosed");
+  if (casesClosedEl) {
+    animateValue(casesClosedEl, 0, Number(state.casesClosed) || 0, 1200);
   }
 
   nameGateTerminalInterval = setInterval(function rotateNameGateLog() {
@@ -503,14 +526,6 @@ function renderHome() {
         <div class="stat-card">
           <div class="label">CASES CLOSED</div>
           <div class="value">${state.casesClosed}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">TOTAL SCORE</div>
-          <div class="value">${state.sessionScore}</div>
-        </div>
-        <div class="stat-card">
-          <div class="label">CURRENT RANK</div>
-          <div class="value">${getRank(state.sessionScore)}</div>
         </div>
       </div>
 
@@ -973,8 +988,9 @@ function renderLeaderboard() {
       <div class="lb-row header">
         <span class="lb-rank">RANK</span>
         <span>NAME</span>
-        <span>TIME</span>
         <span>SCORE</span>
+        <span>CASES CLOSED</span>
+        <span>TIME</span>
       </div>
       ${entries
         .map(function renderEntry(entry, index) {
@@ -982,8 +998,9 @@ function renderLeaderboard() {
             <div class="lb-row">
               <span class="lb-rank">${rankLabel(index)}</span>
               <span>${entry.name || "Player"}</span>
-              <span>${formatTime(entry.time)}</span>
               <span class="lb-score">${Number(entry.score) || 0} pts</span>
+              <span>${Number(entry.casesClosed) || 0}</span>
+              <span>${formatTime(entry.time)}</span>
             </div>
           `;
         })
