@@ -122,7 +122,7 @@ export function InvestigationScreen() {
       </div>
 
       {state.activePin && activePost && (
-        <div className="pin-overlay" onClick={(e) => { if ((e.target as HTMLElement).classList.contains('pin-overlay')) dispatch({ type: 'CLOSE_PIN' }) }}>
+        <div className="pin-overlay is-visible" onClick={(e) => { if ((e.target as HTMLElement).classList.contains('pin-overlay')) dispatch({ type: 'CLOSE_PIN' }) }}>
           <div className="evidence-preview-wrap">
             <div className="evidence-preview-card">
               <div className="evidence-preview-header">
@@ -180,7 +180,7 @@ export function InvestigationScreen() {
       )}
 
       {briefingOpen && (
-        <div className="briefing-folder-overlay" onClick={(e) => { if ((e.target as HTMLElement).classList.contains('briefing-folder-overlay')) setBriefingOpen(false) }}>
+        <div className="briefing-folder-overlay folder-visible" onClick={(e) => { if ((e.target as HTMLElement).classList.contains('briefing-folder-overlay')) setBriefingOpen(false) }}>
           <div className="briefing-folder">
             <div className="folder-interior">
               <div className="folder-content">
